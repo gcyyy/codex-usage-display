@@ -73,4 +73,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" release-assets/* --verify-tag --draft --title "$RELEASE_TAG" --notes-file CHANGELOG.md
+        run: |
+          if gh release view "$RELEASE_TAG" --json isDraft > release-state.json; then
+            if jq -e '.isDraft == true' release-state.json > /dev/null; then
+              gh release upload "$RELEASE_TAG" release-assets/* --clobber
+            else
+              echo "Release is already public; existing assets are preserved."
+            fi
+          else
+            gh release create "$RELEASE_TAG" release-assets/* --verify-tag --draft --title "$RELEASE_TAG" --notes-file CHANGELOG.md
+          fi

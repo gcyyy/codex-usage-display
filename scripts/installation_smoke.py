@@ -62,7 +62,13 @@ def main():
                 assert checksum(target/'codex-usage-collector.exe') == checksum(exe)
                 assert config['pairingToken'] not in (plus/'user_scripts/codex-usage-status.js').read_text(encoding='utf-8')
             run('--state',state,'diagnose')
-            run('uninstall',*options)
+            # Exercise the shipped PowerShell wrapper: its temporary EXE must remove
+            # the installed EXE while keeping the user's unrelated settings intact.
+            removal = subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass',
+                '-File',str(target/'scripts/Uninstall.ps1'),'-InstallDirectory',str(target)],
+                capture_output=True,timeout=60,creationflags=flags)
+            if removal.returncode:
+                raise RuntimeError('Shipped uninstall wrapper failed: ' + removal.stderr.decode('utf-8', errors='replace'))
             assert not (target/'codex-usage-collector.exe').exists()
             assert (state/'config.json').exists()
             assert json.loads(settings.read_text()) == {'enabled':False,'scripts':{'user:other.js':False},'unrelated':42}
@@ -80,7 +86,7 @@ def main():
                         time.sleep(.25)
     print(json.dumps({'status':'passed','version':__version__,
         'checks':['actual-zip','verify','install','repeat-upgrade','preserve-config','private-token',
-            'hidden-serve','uninstall','preserve-unrelated-settings','retain-data'],
+            'hidden-serve','shipped-powershell-uninstall','preserve-unrelated-settings','retain-data'],
         'bridgeProcessReplacement':'unit-tested with fake host; real host unchanged'}))
 
 
