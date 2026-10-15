@@ -1,6 +1,6 @@
 # 测试记录
 
-0.2.0 本机已通过 73 项 Python 回归、6 组界面配置与 60 次热重载、独立 EXE 冒烟，以及实际完整 ZIP 的安装 / 重复升级 / 卸载验证。
+0.2.0 本机已通过 74 项 Python 回归、6 组界面配置与 60 次热重载、独立 EXE 冒烟，以及实际完整 ZIP 的安装 / 重复升级 / 卸载验证。
 
 验证覆盖：核心数字解析、精确模型计价、缓存与长上下文、图片计价、分支归属与响应去重、HTTP 只读访问控制、用户脚本布局与生命周期，以及安装校验、配置保留、重复升级、失败回滚、安全卸载。
 
@@ -13,3 +13,5 @@
 GitHub 云端 CI 结果以实际 Actions 运行记录为准，工作流配置本身不代表云端构建已经通过。
 
 GitHub Windows CI 已通过：[Tests 38675709047](https://github.com/gcyyy/codex-usage-display/actions/runs/38675709047)。完整桥接发行构建首次验证结果以 release 工作流的实际运行记录为准。
+
+独立后台进程按 PyInstaller 文档设置 PYINSTALLER_RESET_ENVIRONMENT，外部管理器启动时恢复 Windows 标准 DLL 搜索路径，避免安装器退出后后台复用临时解包目录。参见 https://pyinstaller.org/en/stable/common-issues-and-pitfalls.html 。

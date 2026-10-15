@@ -6,6 +6,7 @@ import zipfile
 from argparse import Namespace
 from pathlib import Path
 from unittest.mock import patch
+from unittest.mock import MagicMock
 
 from collector import __version__
 from collector.install import install, uninstall, verify_package, Transaction, checksum, json_bytes
@@ -216,6 +217,18 @@ class InstallationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'reviewed source'):
             import_bridge_package(archive,root)
         self.assertFalse((root/'.reference').exists())
+
+    def test_background_failure_restores_installer_dll_search_and_does_not_mutate_parent_env(self):
+        import os,sys,ctypes
+        from collector.install import background
+        kernel=MagicMock()
+        with patch.object(sys,'frozen',True,create=True), patch.object(sys,'_MEIPASS','synthetic-bundle',create=True), \
+                patch.object(ctypes,'windll',kernel,create=True), patch('collector.install.subprocess.Popen',side_effect=OSError('synthetic spawn failure')) as spawn:
+            prior=os.environ.get('PYINSTALLER_RESET_ENVIRONMENT')
+            with self.assertRaises(OSError):background(['synthetic-child'])
+            self.assertEqual(os.environ.get('PYINSTALLER_RESET_ENVIRONMENT'),prior)
+            self.assertEqual(spawn.call_args.kwargs['env']['PYINSTALLER_RESET_ENVIRONMENT'],'1')
+            self.assertEqual([c.args for c in kernel.kernel32.SetDllDirectoryW.call_args_list],[(None,),('synthetic-bundle',)])
 
 
 if __name__ == '__main__':

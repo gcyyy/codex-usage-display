@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import time
 import urllib.request
 import uuid
@@ -138,13 +139,30 @@ def run(exe, *args):
     return result.stdout
 
 
+def background(argv, **options):
+    # Independent services must not reuse an installer's temporary one-file bundle.
+    environment = {**os.environ, 'PYINSTALLER_RESET_ENVIRONMENT':'1'}
+    reset = None
+    if os.name == 'nt' and getattr(sys, 'frozen', False):
+        import ctypes
+        reset = ctypes.windll.kernel32.SetDllDirectoryW
+        reset.argtypes = [ctypes.c_wchar_p]
+        reset.restype = ctypes.c_int
+        reset(None)
+    try:
+        return subprocess.Popen(argv, env=environment, **options)
+    finally:
+        if reset:
+            reset(getattr(sys, '_MEIPASS', None))
+
+
 def start(exe, state):
     try:
         run(exe, '--state', state, 'diagnose')
         return
     except RuntimeError:
         pass
-    process = subprocess.Popen([str(exe), '--state', str(state), 'serve'],
+    process = background([str(exe), '--state', str(state), 'serve'],
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     deadline = time.monotonic() + 15
@@ -187,7 +205,7 @@ def start_manager(exe):
     if startup:
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
-    subprocess.Popen([str(exe)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    background([str(exe)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0), startupinfo=startup)
 
 
