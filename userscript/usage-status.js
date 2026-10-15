@@ -50,14 +50,22 @@
     details.model { border-bottom:1px solid var(--line); padding:9px 0; }
     summary { cursor:pointer; list-style:none; } summary::-webkit-details-marker { display:none; }
     .name { min-width:0; overflow-wrap:anywhere; font-weight:600; } .numbers { flex-shrink:0; text-align:right; }
-    .bar { height:3px; border-radius:2px; background:var(--line); margin:7px 0 0; overflow:hidden; }
-    .bar span { display:block; height:100%; background:var(--accent); }
+    .bar { display:flex; height:8px; border-radius:4px; background:var(--line); margin:7px 0 0; overflow:hidden; }
+    .bar span { display:block; height:100%; flex:none; }
+    .token-legend { display:flex; flex-wrap:wrap; gap:4px 12px; margin:8px 0; }
+    .token-key { display:inline-flex; align-items:center; gap:5px; }
+    .token-dot { display:inline-block; width:8px; height:8px; border-radius:2px; flex:none; }
     .breakdown { margin:10px 0 2px; } .breakdown .row { margin:3px 0; } .breakdown span:first-child { color:var(--muted); }
     .reason { margin:8px 0 0; color:var(--warn); font-size:11px; } .empty { text-align:center; padding:24px 8px; color:var(--muted); }
     .bottom { margin-top:16px; padding-top:12px; border-top:1px solid var(--line); flex-wrap:wrap; }
     .options label { display:block; margin:6px 0; } input { accent-color:var(--accent); }
     .disclaimer { margin:10px 0 0; color:var(--muted); font-size:11px; }
     .pricing { margin-top:12px; } .pricing p { margin:7px 0; } a { color:var(--accent); }
+    .pricing > summary { display:flex; align-items:center; justify-content:space-between; padding:9px 11px;
+      border:1px solid var(--accent); border-radius:8px; background:var(--surface); color:var(--accent); font-weight:600; }
+    .pricing > summary:hover { background:var(--line); }
+    .pricing > summary::after { content:"＋"; font-size:15px; }
+    .pricing[open] > summary::after { content:"−"; }
     .internal { margin-top:12px; } ul { padding-left:18px; } li { margin:4px 0; }
     @media(prefers-reduced-motion:no-preference) { #entry { transition:border-color .15s; } }
   `;
@@ -210,6 +218,45 @@
     block.append(el("span", label, "label"), el("span", value, "value"));
     return block;
   }
+  const tokenTypes = {
+    uncached: ["未命中缓存输入", "#448de0"],
+    cacheRead: ["缓存命中", "#37a879"],
+    cacheWrite: ["缓存写入", "#d99a32"],
+    output: ["非推理输出", "#9b78d5"],
+    reasoning: ["推理输出", "#dd779c"],
+    unknown: ["分类未知", "#88929e"]
+  };
+  const validCount = n => Number.isSafeInteger(n) && n >= 0;
+  const percent = (n, total) => total > 0 ? `${(n / total * 100).toFixed(1)}%` : "0.0%";
+  function tokenParts(model) {
+    const t = model.totals, parts = [];
+    const add = (key, count) => { if (count > 0) parts.push({key, count}); };
+    if (!validCount(t.total)) return parts;
+    if (!validCount(t.input) || !validCount(t.output) || t.input + t.output !== t.total) {
+      add("unknown", t.total); return parts;
+    }
+    const read = validCount(t.cacheRead) && t.cacheRead <= t.input ? t.cacheRead : null;
+    const writeKnown = validCount(t.cacheWrite) && read !== null && read + t.cacheWrite <= t.input &&
+      !model.reasons.some(r => ["unknown_cache_write_semantics", "invalid_subcategory"].includes(r.code));
+    if (read !== null) add("cacheRead", read);
+    if (writeKnown) {
+      add("uncached", t.input - read - t.cacheWrite);
+      add("cacheWrite", t.cacheWrite);
+    } else add("unknown", t.input - (read ?? 0));
+    if (validCount(t.reasoning) && t.reasoning <= t.output) {
+      add("output", t.output - t.reasoning);
+      add("reasoning", t.reasoning);
+    } else add("unknown", t.output);
+    return parts;
+  }
+  function tokenKey(key, label = tokenTypes[key][0]) {
+    const item = el("span", null, "token-key");
+    const dot = el("span", null, "token-dot");
+    dot.style.background = tokenTypes[key][1];
+    dot.setAttribute("aria-hidden", "true");
+    item.append(dot, document.createTextNode(label));
+    return item;
+  }
   function modelRow(model, total) {
     const detail = el("details", null, "model");
     detail.dataset.model = model.modelId;
@@ -220,19 +267,25 @@
     numbers.append(el("span", tokens(model.totals.total)), el("div", `${model.costUSD == null && model.knownSubtotalUSD != null ? "部分 " : ""}${dollars(model.costUSD ?? model.knownSubtotalUSD)}`, "muted small"));
     row.append(numbers);
     const bar = el("div", null, "bar");
-    const fill = el("span");
-    fill.style.width = `${total ? model.totals.total / total * 100 : 0}%`;
-    let hash = 0;
-    for (const c of model.modelId) hash = (hash * 31 + c.charCodeAt(0)) | 0;
-    fill.style.background = `hsl(${Math.abs(hash) % 360} 45% 55%)`;
-    bar.append(fill);
+    const parts = tokenParts(model);
+    const descriptions = parts.map(({key, count}) => `${tokenTypes[key][0]}：${exact(count)} Token，占该模型 ${percent(count, model.totals.total)}`);
+    bar.setAttribute("role", "img");
+    bar.setAttribute("aria-label", `${model.modelId} Token 构成；${descriptions.join("；")}`);
+    parts.forEach(({key, count}, i) => {
+      const fill = el("span");
+      fill.dataset.tokenType = key;
+      fill.style.width = `${total > 0 ? count / total * 100 : 0}%`;
+      fill.style.background = tokenTypes[key][1];
+      fill.title = descriptions[i];
+      bar.append(fill);
+    });
     summary.append(row, bar);
     detail.append(summary);
     const breakdown = el("div", null, "breakdown");
-    const fields = [["输入", "input"], ["其中缓存读取", "cacheRead"], ["缓存写入（包含关系见诊断）", "cacheWrite"], ["输出", "output"], ["其中推理", "reasoning"], ["总 Token", "total"]];
-    fields.forEach(([label, key]) => {
-      const r = el("div", null, "row");
-      r.append(el("span", label), el("span", exact(model.totals[key])));
+    breakdown.append(el("div", `占今日模型用量 ${percent(model.totals.total, total)}`, "muted small"));
+    parts.forEach(({key, count}) => {
+      const r = el("div", null, "row small token-part");
+      r.append(tokenKey(key), el("span", `${exact(count)} · ${percent(count, model.totals.total)}`));
       breakdown.append(r);
     });
     if (model.rates) {
@@ -241,7 +294,7 @@
         const rate = context === "long" ? model.rates.long.rates : model.rates.short;
         breakdown.append(el("div", `${context === "long" ? "长上下文" : "短上下文"}：输入 ${rate.uncachedInput ?? "未知"} / 读取 ${rate.cacheReadInput ?? "未知"} / 写入 ${rate.cacheWriteInput ?? "未知"} / 输出 ${rate.output ?? "未知"}`, "small muted"));
       }
-      breakdown.append(el("div", `单次输入 > ${exact(model.rates.long.thresholdInputTokens)} 时整次请求采用长上下文费率。`, "small muted"));
+      breakdown.append(el("div", `长上下文：输入 > ${exact(model.rates.long.thresholdInputTokens)} Token`, "small muted"));
     }
     model.reasons.forEach(r => breakdown.append(el("div", `${r.message}（${r.count}）`, "reason")));
     detail.append(breakdown);
@@ -292,6 +345,10 @@
     select.addEventListener("change", () => { sort = select.value; render(); card.querySelector("select")?.focus(); });
     tools.append(select);
     card.append(tools);
+    const legend = el("div", null, "token-legend small muted");
+    Object.keys(tokenTypes).forEach(key => legend.append(tokenKey(key)));
+    legend.title = "条长为模型占比，颜色为 Token 构成";
+    card.append(legend);
     const models = [...data.models].sort((a,b) => sort === "cost" ? Number(b.knownSubtotalUSD ?? -1) - Number(a.knownSubtotalUSD ?? -1) : b.totals.total - a.totals.total);
     if (!models.length) card.append(el("div", data.dataStatus === "complete" ? "今天暂无用量" : "尚未读取到可统计用量", "empty"));
     models.forEach(m => card.append(modelRow(m, total)));
@@ -308,7 +365,7 @@
       input.addEventListener("change", () => { change(input.checked); refresh(); });
       label.append(input, document.createTextNode(` ${text}`)); options.append(label);
     });
-    options.append(el("p", "本机日志可能涉及多个账号，不代表当前登录账号的完整账单。", "muted small"));
+    options.append(el("p", "仅统计本机日志，可能包含多个账号。", "muted small"));
     card.append(options);
     const bottom = el("div", null, "bottom");
     const update = button(busy ? "刷新中…" : "刷新", refresh); update.disabled = busy;
@@ -316,11 +373,11 @@
     card.append(bottom);
     const pricing = el("details", null, "pricing"); pricing.dataset.section = "pricing";
     pricing.append(el("summary", "价格口径与覆盖情况"));
-    pricing.append(el("p", "API 等价估算：按官方 Standard API Token 单价估算，含已核验模型的图片输入，不代表 Codex 订阅实际扣费。", "disclaimer"));
-    pricing.append(el("p", "图片换算已包含在日志输入 Token 中，不重复乘图片系数或另加图片费。", "disclaimer"));
+    pricing.append(el("p", "按 Standard API 单价估算，非订阅实际扣费。", "disclaimer"));
+    pricing.append(el("p", "图片计入输入，暂无独立占比。", "disclaimer"));
     pricing.append(el("p", `按价格表 ${data.pricing.verifiedAt || "未知"} 估算 · ${data.pricing.priceVersion || "无有效价格表"}`, "muted small"));
-    pricing.append(el("p", `已定价 ${tokens(data.pricedTokens)} / 未定价 ${tokens(data.unpricedTokens)} Token；记录覆盖与价格覆盖分别判断。`, "muted small"));
-    pricing.append(el("p", "不包含工具调用、搜索、存储、独立图片或音频生成、地区附加费、税费与订阅费。", "disclaimer"));
+    pricing.append(el("p", `已定价 ${tokens(data.pricedTokens)} / 未定价 ${tokens(data.unpricedTokens)} Token`, "muted small"));
+    pricing.append(el("p", "仅估算 Token 费用，不含工具、独立媒体生成及其他费用。", "disclaimer"));
     const link = el("a", "官方 API 定价"); link.href = "https://developers.openai.com/api/docs/pricing"; link.target = "_blank"; link.rel = "noopener noreferrer"; pricing.append(link);
     if (data.diagnostics.length) {
       const list = el("ul", null, "small"); data.diagnostics.forEach(d => list.append(el("li", `${d.message}（${d.count}）`))); pricing.append(list);

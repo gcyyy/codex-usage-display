@@ -141,6 +141,28 @@ async function main() {
   await bridgePage.evaluate(bridgeScript);
   await bridgePage.getByRole('button',{name:/今日 110.0K/}).click();
   assert.deepEqual((await bridgePage.evaluate(()=>window.bridgeCalls))[0],{route:'/usage-status/today',options:{includeInternal:false,includeCLI:false,includeOther:false}});
+  // Segment widths partition model totals without double-counting cached input or reasoning.
+  for (const fixture of [
+   {totals, expected:{cacheRead:60000,uncached:40000,output:6000,reasoning:4000}},
+   {totals:{...totals,cacheWrite:5000},expected:{cacheRead:60000,uncached:35000,cacheWrite:5000,output:6000,reasoning:4000}},
+   {totals:{...totals,cacheRead:null,reasoning:null},expected:{unknown:110000}},
+   {totals:{...totals,cacheWrite:5000},reasons:[{code:'unknown_cache_write_semantics',message:'待核验',count:1}],expected:{cacheRead:60000,unknown:40000,output:6000,reasoning:4000}},
+   {totals:{...totals,cacheRead:200000,reasoning:20000},expected:{unknown:110000}},
+   {totals:{input:0,output:0,total:0,cacheRead:0,cacheWrite:0,reasoning:0},expected:{}}
+  ]) {
+   await bridgePage.evaluate(f=>{
+    const model=window.syntheticSummary.models[0];model.totals=f.totals;model.reasons=f.reasons||[];
+    window.syntheticSummary.totals={...f.totals,total:f.totals.total*2};
+   },fixture);
+   await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
+   const widths=await bridgePage.locator('.model .bar span').evaluateAll(nodes=>nodes.reduce((out,n)=>{
+    out[n.dataset.tokenType]=(out[n.dataset.tokenType]||0)+parseFloat(n.style.width);return out;
+   },{}));
+   assert.deepEqual(Object.keys(widths).sort(),Object.keys(fixture.expected).sort());
+   for(const [key,count] of Object.entries(fixture.expected)) assert.ok(Math.abs(widths[key]-count/fixture.totals.total*50)<0.001);
+   assert.ok((await bridgePage.locator('#card').textContent()).includes('暂无独立占比'));
+  }
+  await bridgePage.evaluate(data=>{window.syntheticSummary=data},base);
   await bridgePage.evaluate(()=>{window.bridgeError='USAGE_AUTH_FAILED'});
   await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
   await bridgePage.getByText(/配对令牌或页面来源未通过校验/).waitFor();
