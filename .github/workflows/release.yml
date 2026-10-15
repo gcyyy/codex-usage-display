@@ -128,11 +128,13 @@ jobs:
             release_id=$(gh api --method POST "repos/$GH_REPO/releases" --input new-release.json --jq .id)
           fi
           test -n "$release_id"
-          if [ "$(gh api "repos/$GH_REPO/releases/$release_id" --jq .draft)" != true ]; then
+          draft_state=$(gh api "repos/$GH_REPO/releases/$release_id" --jq .draft)
+          if [ "$draft_state" = false ]; then
             echo 'Release already public; existing assets preserved.'
             exit 0
           fi
-          gh api --method PATCH "repos/$GH_REPO/releases/$release_id" -f target_commitish="$SOURCE_COMMIT" > /dev/null
+          test "$draft_state" = true
+          gh api --method PATCH "repos/$GH_REPO/releases/$release_id" -f tag_name="$RELEASE_TAG" -f target_commitish="$SOURCE_COMMIT" > /dev/null
           for file in release-assets/*; do
             name=$(basename "$file")
             old_id=$(gh api "repos/$GH_REPO/releases/$release_id/assets" | jq -r --arg name "$name" '.[] | select(.name == $name) | .id')
@@ -142,5 +144,5 @@ jobs:
             test "$(jq -r .digest uploaded.json)" = "$expected"
           done
           if [ "$PUBLISH" = true ]; then
-            gh api --method PATCH "repos/$GH_REPO/releases/$release_id" -F draft=false -f make_latest=true --jq .html_url
+            gh api --method PATCH "repos/$GH_REPO/releases/$release_id" -f tag_name="$RELEASE_TAG" -F draft=false -f make_latest=true --jq .html_url
           fi
