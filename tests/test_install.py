@@ -112,6 +112,21 @@ class InstallationTest(unittest.TestCase):
         self.assertEqual((self.target / '.runtime/config.json').read_bytes(), config)
         self.assertFalse((self.target / 'codex-usage-collector.exe').exists())
 
+    def test_failed_first_install_can_be_retried_with_recovery_directories_present(self):
+        self.mocks[1].side_effect = RuntimeError('synthetic startup failure')
+        with self.assertRaises(RuntimeError):
+            install(self.args)
+        self.mocks[1].side_effect = None
+        install(self.args)
+        self.assertTrue((self.target / 'installation.json').is_file())
+
+    def test_unrelated_install_directory_is_rejected_before_writes(self):
+        self.target.mkdir()
+        private = self.target/'unrelated.txt';private.write_text('keep')
+        with self.assertRaisesRegex(ValueError, 'unrelated'):
+            install(self.args)
+        self.assertEqual(private.read_text(), 'keep')
+
     def test_uninstall_keeps_modified_files_and_new_unrelated_settings(self):
         install(self.args)
         script = self.plus / 'user_scripts/codex-usage-status.js'

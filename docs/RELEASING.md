@@ -4,7 +4,7 @@
 
 ## 构建环境
 
-Windows x64；Python 3.12.14，requirements-build.lock 锁定构建依赖；Node 22、npm 锁文件；Rust 1.99.0 的 x86_64-pc-windows-msvc 工具链；Visual Studio C++ Build Tools 与 Windows SDK。桥接原生依赖按上游锁文件构建，首次需要访问 GitHub、npm 和 crates.io。
+Windows x64；本机 Python 3.12.14，云端 Python 3.13（Actions 不提供 3.12.14 的 Windows 发行构建），requirements-build.lock 锁定构建依赖；Node 22、npm 锁文件；Rust 1.99.0 的 x86_64-pc-windows-msvc 工具链；Visual Studio C++ Build Tools 与 Windows SDK。桥接原生依赖按上游锁文件构建，首次需要访问 GitHub、npm 和 crates.io。
 
 ## 从干净源码复现
 

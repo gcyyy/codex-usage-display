@@ -48,7 +48,7 @@ Windows Codex 桌面的当日 Token 与 API 等价金额面板。入口位于右
 
 ## 开发与发布
 
-源码测试支持 Python 3.11+。Windows 发布 EXE 使用 Python 3.12.14 / PyInstaller 6.16.0；宿主桥接使用 Rust 1.99.0 / MSVC、Windows SDK 与 Node 22。最终使用者不需要这些构建工具。
+源码测试支持 Python 3.11+。本机验证的 Windows EXE 使用 Python 3.12.14 / PyInstaller 6.16.0，GitHub CI 使用受支持的 Python 3.13 Windows 构建；宿主桥接使用 Rust 1.99.0 / MSVC、Windows SDK 与 Node 22。最终使用者不需要这些构建工具。
 
 ```powershell
 python -m unittest discover -s tests -q

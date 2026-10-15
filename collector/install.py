@@ -198,7 +198,9 @@ def install(args):
         raise ValueError('Extract the package outside the installation directory')
     if target == Path(target.anchor) or target == Path.home().resolve() or target in (plus, host_state):
         raise ValueError('Choose a dedicated installation directory')
-    if target.exists() and not (target/'codex-usage-collector.exe').exists() and any(p.name != '.runtime' for p in target.iterdir()):
+    if target.exists() and not (target/'codex-usage-collector.exe').exists() and any(
+            p.is_file() and p.relative_to(target).parts[0] not in {'.runtime','.installation-backups'}
+            for p in target.rglob('*')):
         raise ValueError('Installation directory contains unrelated files')
     settings_path = plus / 'user_scripts.json'
     settings = read_json(settings_path)
