@@ -2,7 +2,7 @@
 
 ## 安装条件
 
-如果电脑只有官方 Codex、没有 Codex++，先按 [README 的首次安装步骤](../README.md#从只有-codex开始安装) 补装核验的上游 Codex++ 1.8.0，必要时安装微软 WebView2，再实际打开管理器、确认 Codex 路径并保存用户脚本设置。仓库的 `scripts/Install-CodexPlus.ps1` 可下载校验并辅助首次安装，已有版本不会被覆盖。该辅助脚本晚于公开 v0.2.0，需要从仓库单独取得。
+如果电脑只有官方 Codex、没有 Codex++，先按 [README 的首次安装步骤](../README.md#从只有-codex开始安装) 补装核验的上游 Codex++ 1.8.0，必要时安装微软 WebView2，再实际打开管理器、确认 Codex 路径并保存用户脚本设置。仓库的 `scripts/Install-CodexPlus.ps1` 可下载校验并辅助首次安装，已有版本不会被覆盖。v0.2.1 完整包已包含该辅助脚本。
 
 完整包无需 Python、Node 或 Rust；Codex++ 界面仍需 WebView2。上游 1.8.0 安装器不自动补装 WebView2。另一台电脑的复现步骤与仅依赖 Windows PowerShell 5.1 的验收脚本见 [干净电脑验收](CLEAN_MACHINE_TEST.md)。
 
@@ -15,7 +15,7 @@ Windows x64，已安装并启动过 Codex++。本版绑定 Codex++ 1.8.0 的核�
 下载 Release ZIP 与同页 SHA256SUMS.txt。用 PowerShell 核对下载文件：
 
 ```powershell
-Get-FileHash .\codex-usage-display-0.2.0-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\codex-usage-display-0.2.1-windows-x64.zip -Algorithm SHA256
 ```
 
 将结果与发布页清单比较，再完整解压。运行 Install.cmd 会验证内部 SHA256SUMS.json，然后安装到当前用户目录，无需管理员权限。程序未做代码签名；如果系统拦截，应先确认来源及哈希，按本机策略处理，不需要关闭系统防护。

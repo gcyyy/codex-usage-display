@@ -122,7 +122,8 @@ def main():
             'dist/bridge/build.json':'bridge/build.json', 'dist/bridge/corresponding-source.zip':'bridge/corresponding-source.zip'})
     release = ROOT / 'dist/release.json'
     release.parent.mkdir(exist_ok=True)
-    release.write_text(json.dumps({'schemaVersion':1,'version':__version__,'platform':'windows-x64',
+    source_commit = subprocess.check_output(['git','rev-parse','HEAD'], cwd=ROOT, text=True).strip()
+    release.write_text(json.dumps({'schemaVersion':1,'version':__version__,'sourceCommit':source_commit,'platform':'windows-x64',
         'bundleBridge':args.with_bridge,'license':'AGPL-3.0-only'}, indent=2), encoding='utf-8')
     files['dist/release.json'] = 'release.json'
     manifest = {dst: hashlib.sha256((ROOT/src).read_bytes()).hexdigest() for src,dst in files.items()}

@@ -11,7 +11,7 @@
 ## 获取材料
 
 1. 按 README 下载并验证完整 Release ZIP，然后完整解压到新目录。
-2. 从同一源码版本取 `scripts/Test-CleanMachine.ps1` 和 `scripts/Install-CodexPlus.ps1`，保存到本地。公开 0.2.0 ZIP 不含这两个后来新增的脚本；不要将脚本复制进包内再修改 SHA256SUMS.json。
+2. 从同一源码版本取 `scripts/Test-CleanMachine.ps1` 和 `scripts/Install-CodexPlus.ps1`，保存到本地。v0.2.1 完整 ZIP 已包含这两个脚本；使用包内版本，不要修改 SHA256SUMS.json。
 3. 记录源码 commit、ZIP 文件名及 SHA-256、Windows 版本、官方 Codex 版本。不要记录认证或会话内容。
 
 ## A. 安装前的独立 EXE 冒烟
@@ -64,7 +64,7 @@ if ($LASTEXITCODE -ne 0) { throw '安装后检查失败' }
 | 展开 | 模型列表、金额、统计范围与价格覆盖可操作 |
 | 数字刷新 | 等索引完成后刷新；有当日用量时出现数据 |
 | 零记录 | 无当日会话时显示零/暂无用量，不能误报失败 |
-| 版本差异 | 0.2.0 用旧界面验收；main 的彩条截图不能当作 0.2.0 必须项 |
+| 版本差异 | v0.2.1 必须显示彩色分段条；热重载后验收 |
 | 主题/DPI | 本机浅色/深色、显示缩放下仍能打开及关闭 |
 | 重启后 | 重启电脑，运行 Start.cmd，再经 Codex++ 启动后仍可用 |
 | 卸载 | 在可回滚测试机运行 Uninstall.cmd 后入口移除，其他配置保持 |

@@ -12,7 +12,7 @@
 | --- | --- |
 | ![浅色用量面板](docs/images/usage-light.png) | ![深色用量面板](docs/images/usage-dark.png) |
 
-截图由当前 `main` 的界面代码使用**合成数据**生成，不含真实会话或账单。公开 `v0.2.0` 安装包早于彩色分段条改动；截图展示源码版效果。更新 `main` 不会自动更新旧 Release。本文新增的辅助脚本需从仓库单独下载，后续发行包会包含它们。
+截图使用**合成数据**生成，不含真实会话或账单。v0.2.1 完整安装包包含彩色 Token 分段条、精简明细、增强的折叠按钮，以及本文的安装辅助和验收脚本。
 
 条长表示模型占当日用量的比例；颜色表示模型内 Token 构成：绿色缓存命中、蓝色未命中缓存输入、橙色缓存写入、紫色非推理输出、粉色推理输出、灰色分类未知。悬停或展开查看数量和比例。图片已计入输入，但日志未单列图片 Token，暂无独立图片占比。
 
@@ -58,19 +58,22 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-CodexPlus.ps1 
 
 ### 2. 下载本项目完整包并校验
 
-当前公开版本：[v0.2.0](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.0)。下载 `codex-usage-display-0.2.0-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
+当前公开版本：[v0.2.1](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.1)。下载 `codex-usage-display-0.2.1-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
 
 可在 Windows PowerShell 中下载和校验，不执行任何远程脚本：
 
 ```powershell
 $taskDir = Join-Path $env:TEMP ('codex-usage-download-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $taskDir | Out-Null
-$taskName = 'codex-usage-display-0.2.0-windows-x64.zip'
+$taskName = 'codex-usage-display-0.2.1-windows-x64.zip'
 $taskZip = Join-Path $taskDir $taskName
-$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.0/'
+$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.1/'
 Invoke-WebRequest -UseBasicParsing ($taskBase + $taskName) -OutFile $taskZip
 Invoke-WebRequest -UseBasicParsing ($taskBase + 'SHA256SUMS.txt') -OutFile (Join-Path $taskDir 'SHA256SUMS.txt')
-$taskExpected = '60f61fee212c44a74223c8d359660367fcd8a8cba84a4d244bc199cea0d6ce0f'
+# 从同一版本的清单精确匹配文件名，拒绝缺失或重复条目
+$taskLines = @(Get-Content (Join-Path $taskDir 'SHA256SUMS.txt') | Where-Object { $_ -match ('^[0-9a-fA-F]{64}  ' + [regex]::Escape($taskName) + '$') })
+if ($taskLines.Count -ne 1) { throw 'SHA256SUMS 中没有唯一匹配条目' }
+$taskExpected = $taskLines[0].Substring(0,64).ToLowerInvariant()
 if ((Get-FileHash -LiteralPath $taskZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $taskExpected) {
     throw '下载哈希不匹配，停止安装'
 }
@@ -78,7 +81,7 @@ Expand-Archive -LiteralPath $taskZip -DestinationPath (Join-Path $taskDir 'extra
 Set-Location (Join-Path $taskDir 'extracted\codex-usage-status')
 ```
 
-不要解压覆盖现有安装目录。新版请使用新版发布页文件名和哈希，不要继续套用 0.2.0 哈希。
+不要解压覆盖现有安装目录。新版请使用新版发布页文件名和哈希，不要继续套用 0.2.1 哈希。
 
 ### 3. 安装用量面板
 
@@ -122,7 +125,7 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 | 后台 | diagnose 返回 ok | 启动采集器，查配置/端口 |
 | UI | 热重载后入口和刷新正常 | 查增强开关、脚本启用、桥接 |
 
-**版本边界：**0.2.0 不含本次 main 新增界面与辅助脚本。Agent 应说明安装版与截图的差别；开发者可按构建说明生成最新完整包，不要为追平截图在新用户电脑安装整套编译工具。
+**版本验收：**确认安装回执中的版本为 `0.2.1`，热重载后能看到彩色分段条。包内 `release.json` 的 `sourceCommit` 标识构建源码，`SHA256SUMS.json` 校验实际脚本。不要用旧版包、旧进程或未热重载的界面验收新版。
 
 ## 固定文件与兼容性
 
@@ -133,9 +136,9 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 | Codex++ 1.8.0 Windows setup.exe | `831d82600370ee7fef600f40fefbc55e3a484e3701a76f8ddcf867ab96962647` |
 | Codex++ 1.8.0 Windows ZIP | `9b1a495d156242c747ff2b914d6ab141200948313db06f42e964cd0d410e694c` |
 | 上游 ZIP 内 codex-plus-plus.exe | `48f062f9de96904c4c8169a8ccb0ee978fcca0d33cb1c75df9dee67c453a5d3d` |
-| 本项目 v0.2.0 完整 Windows ZIP | `60f61fee212c44a74223c8d359660367fcd8a8cba84a4d244bc199cea0d6ce0f` |
+| 本项目 v0.2.1 完整 Windows ZIP | 以 [v0.2.1 SHA256SUMS.txt](https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.1/SHA256SUMS.txt) 为准 |
 
-来源：[上游 v1.8.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.8.0)、[本项目 v0.2.0](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.0)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
+来源：[上游 v1.8.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.8.0)、[本项目 v0.2.1](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.1)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
 
 ## 测试范围：另一台电脑能否运行
 
