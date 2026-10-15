@@ -88,6 +88,19 @@ jobs:
         run: .\scripts\Build.ps1 -WithBridge
       - name: Test installation from actual ZIP
         run: python -m scripts.installation_smoke
+      - name: Test packaged collector without developer tools on PATH
+        run: |
+          $taskZip = Get-ChildItem dist -Filter '*-windows-x64.zip' | Where-Object Name -NotLike '*collector-only*' | Select-Object -ExpandProperty FullName
+          if (@($taskZip).Count -ne 1) { throw 'Expected one full release ZIP' }
+          Expand-Archive -LiteralPath $taskZip -DestinationPath .runtime/clean-machine-package
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/Test-CleanMachine.ps1 -PackageRoot .runtime/clean-machine-package/codex-usage-status -Output tests/output/clean-machine-smoke.json
+          if ($LASTEXITCODE -ne 0) { throw 'Runtime-free collector smoke test failed' }
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: clean-machine-smoke-report
+          path: tests/output/clean-machine-smoke.json
+          if-no-files-found: warn
       - name: Export public project source and checksums
         run: python -m scripts.export_source
       - uses: actions/upload-artifact@v7

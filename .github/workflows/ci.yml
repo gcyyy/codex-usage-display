@@ -20,5 +20,14 @@ jobs:
       - run: python -m unittest discover -s tests -q
       - run: npm ci --ignore-scripts
       - run: npm run test:ui
+      - name: Parse Windows installation helpers
+        shell: powershell
+        run: |
+          foreach ($taskFile in @('scripts/Install-CodexPlus.ps1','scripts/Test-CleanMachine.ps1')) {
+            $taskTokens = $null
+            $taskErrors = $null
+            [Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD $taskFile), [ref]$taskTokens, [ref]$taskErrors) | Out-Null
+            if ($taskErrors.Count) { throw ($taskErrors | Out-String) }
+          }
       - name: Scan tracked public files
         run: python -c "from scripts.export_source import public_files; print(len(public_files()))"

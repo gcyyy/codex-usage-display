@@ -65,6 +65,10 @@ async function main() {
    assert.ok((await page.locator('#card').textContent()).includes('60,000'));
    const box=await page.locator('#card').boundingBox();assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=1000&&box.y+box.height<=800);
    await page.screenshot({path:path.join(output,`development-${theme}-${scale}.png`)});
+   if (process.env.UPDATE_DOC_SCREENSHOTS === '1' && scale === 1) {
+    const images=path.join(root,'docs','images');fs.mkdirSync(images,{recursive:true});
+    await page.locator('#card').screenshot({path:path.join(images,`usage-${theme}.png`)});
+   }
    await page.keyboard.press('Escape');assert.ok(await page.locator('#card').isHidden());
    await page.getByRole('button',{name:/今日 110.0K/}).focus();await page.keyboard.press('Enter');assert.ok(await page.locator('#card').isVisible());
    await page.locator('main').click({position:{x:10,y:5}});assert.ok(await page.locator('#card').isHidden());

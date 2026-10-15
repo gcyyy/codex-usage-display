@@ -2,6 +2,10 @@
 
 ## 安装条件
 
+如果电脑只有官方 Codex、没有 Codex++，先按 [README 的首次安装步骤](../README.md#从只有-codex开始安装) 补装核验的上游 Codex++ 1.8.0，必要时安装微软 WebView2，再实际打开管理器、确认 Codex 路径并保存用户脚本设置。仓库的 `scripts/Install-CodexPlus.ps1` 可下载校验并辅助首次安装，已有版本不会被覆盖。该辅助脚本晚于公开 v0.2.0，需要从仓库单独取得。
+
+完整包无需 Python、Node 或 Rust；Codex++ 界面仍需 WebView2。上游 1.8.0 安装器不自动补装 WebView2。另一台电脑的复现步骤与仅依赖 Windows PowerShell 5.1 的验收脚本见 [干净电脑验收](CLEAN_MACHINE_TEST.md)。
+
 Windows x64，已安装并启动过 Codex++。本版绑定 Codex++ 1.8.0 的核验构建，使用文件 SHA-256 判断兼容性，不能只看版本字符串。宿主不匹配时安装器在写入前停止，不覆盖新版或其他构建。
 
 完整包 `codex-usage-display-VERSION-windows-x64.zip` 包含采集器、固定入口脚本、桥接程序、修改后桥接完整源码、许可证及每个文件的哈希清单。`collector-only` 包仅供已有兼容公开桥接的维护者使用，不能直接用于初次安装。
