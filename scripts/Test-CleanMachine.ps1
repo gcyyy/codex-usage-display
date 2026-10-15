@@ -24,7 +24,9 @@ function Invoke-Collector([string[]]$Arguments) {
     return ($taskResult -join "`n")
 }
 try {
-    $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
+    # GitHub Windows runners install py.exe directly in Windows, so exclude
+    # the Windows root too. Keep only OS command utilities and PowerShell.
+    $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
     $env:PYTHONPATH = $null
     $env:PYTHONHOME = $null
     foreach ($taskTool in @('python','python3','py','node','npm','rustc','cargo','git')) {
