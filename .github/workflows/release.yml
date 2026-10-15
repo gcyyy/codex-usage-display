@@ -122,10 +122,10 @@ jobs:
           SOURCE_COMMIT: ${{ github.sha }}
         run: |
           set -euo pipefail
-          release_id=$(gh api "repos/$GH_REPO/releases" --paginate | jq -r --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id' | head -1)
+          release_id=$(gh api "repos/$GH_REPO/releases" --paginate | jq -r --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id' | sed -n '1p')
           if [ -z "$release_id" ]; then
-            gh release create "$RELEASE_TAG" --draft --target "$SOURCE_COMMIT" --title "$RELEASE_TAG" --notes-file CHANGELOG.md
-            release_id=$(gh api "repos/$GH_REPO/releases" --paginate | jq -r --arg tag "$RELEASE_TAG" '.[] | select(.tag_name == $tag) | .id' | head -1)
+            jq -n --arg tag "$RELEASE_TAG" --arg target "$SOURCE_COMMIT" --rawfile body CHANGELOG.md '{tag_name:$tag,target_commitish:$target,name:$tag,body:$body,draft:true}' > new-release.json
+            release_id=$(gh api --method POST "repos/$GH_REPO/releases" --input new-release.json --jq .id)
           fi
           test -n "$release_id"
           if [ "$(gh api "repos/$GH_REPO/releases/$release_id" --jq .draft)" != true ]; then
