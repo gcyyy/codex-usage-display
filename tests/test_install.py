@@ -2,6 +2,7 @@ import hashlib
 import json
 import tempfile
 import unittest
+import zipfile
 from argparse import Namespace
 from pathlib import Path
 from unittest.mock import patch
@@ -186,6 +187,35 @@ class InstallationTest(unittest.TestCase):
         del self.manifest['bridge/corresponding-source.zip'];self.save_manifest()
         with self.assertRaisesRegex(ValueError, 'source'):
             verify_package(self.package)
+
+    def cached_bridge(self):
+        root=self.root/'cache-build';(root/'integration').mkdir(parents=True)
+        patch_body=b'reviewed patch';native=b'tested native bridge'
+        info={'upstreamCommit':'a'*40,'patchSHA256':hashlib.sha256(patch_body).hexdigest(),'bridgeVersion':1}
+        (root/'integration/source.json').write_bytes(json_bytes(info))
+        data={'bridge/codex-plus-plus.exe':native,'integration/codex-plus-1.8.0-usage-bridge.patch':patch_body,
+            'bridge/build.json':json_bytes({'sourceCommit':info['upstreamCommit'],'patchSHA256':info['patchSHA256'],
+                'bridgeVersion':1,'testsExecuted':True,'sha256':hashlib.sha256(native).hexdigest()})}
+        archive=root/'cached.zip'
+        with zipfile.ZipFile(archive,'w') as z:
+            for name,body in data.items():z.writestr('codex-usage-status/'+name,body)
+            z.writestr('codex-usage-status/SHA256SUMS.json',json_bytes({name:hashlib.sha256(body).hexdigest() for name,body in data.items()}))
+        return root,archive
+
+    def test_ci_bridge_cache_requires_exact_reviewed_patch(self):
+        from scripts.package_release import import_bridge_package
+        root,archive=self.cached_bridge()
+        import_bridge_package(archive,root)
+        self.assertEqual((root/'.reference/CodexPlusPlus/target/release/codex-plus-plus.exe').read_bytes(),b'tested native bridge')
+
+    def test_ci_bridge_cache_mismatch_rejected_before_staging(self):
+        from scripts.package_release import import_bridge_package
+        root,archive=self.cached_bridge()
+        info=json.loads((root/'integration/source.json').read_text());info['patchSHA256']='0'*64
+        (root/'integration/source.json').write_bytes(json_bytes(info))
+        with self.assertRaisesRegex(ValueError,'reviewed source'):
+            import_bridge_package(archive,root)
+        self.assertFalse((root/'.reference').exists())
 
 
 if __name__ == '__main__':

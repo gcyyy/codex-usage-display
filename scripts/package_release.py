@@ -5,6 +5,7 @@ import json
 import subprocess
 import zipfile
 from pathlib import Path
+from pathlib import PurePosixPath
 from collector import __version__
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -43,10 +44,45 @@ FILES = {
 }
 
 
+def import_bridge_package(package, root=ROOT):
+    """Reuse a successful CI bridge only when its exact reviewed source still matches."""
+    root = Path(root)
+    info = json.loads((root/'integration/source.json').read_text(encoding='utf-8'))
+    prefix = 'codex-usage-status/'
+    with zipfile.ZipFile(package) as archive:
+        manifest = json.loads(archive.read(prefix+'SHA256SUMS.json'))
+        if len(archive.namelist()) != len(manifest)+1:
+            raise ValueError('Unexpected cached package contents')
+        for name, expected in manifest.items():
+            path = PurePosixPath(name)
+            if path.is_absolute() or '\\' in name or ':' in name or any(p in ('.','..') for p in name.split('/')):
+                raise ValueError('Unsafe cached package path')
+            with archive.open(prefix+name) as stream:
+                if hashlib.file_digest(stream,'sha256').hexdigest() != expected:
+                    raise ValueError('Cached package checksum mismatch')
+        build = json.loads(archive.read(prefix+'bridge/build.json'))
+        if (build.get('testsExecuted') is not True or build.get('bridgeVersion') != info['bridgeVersion']
+                or build.get('sourceCommit') != info['upstreamCommit'] or build.get('patchSHA256') != info['patchSHA256']
+                or manifest.get('integration/codex-plus-1.8.0-usage-bridge.patch') != info['patchSHA256']
+                or manifest.get('bridge/codex-plus-plus.exe') != build.get('sha256')):
+            raise ValueError('Cached bridge differs from reviewed source or has no passing tests')
+        native = archive.read(prefix+'bridge/codex-plus-plus.exe')
+    target = root/'.reference/CodexPlusPlus/target/release/codex-plus-plus.exe'
+    target.parent.mkdir(parents=True,exist_ok=True)
+    target.write_bytes(native)
+    (root/'dist').mkdir(exist_ok=True)
+    (root/'dist/bridge-host-build.json').write_text(json.dumps(build,indent=2),encoding='utf-8')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--with-bridge', action='store_true')
+    parser.add_argument('--import-bridge-package', type=Path, help='Stage a verified same-source CI bridge; does not package a release')
     args = parser.parse_args()
+    if args.import_bridge_package:
+        import_bridge_package(args.import_bridge_package)
+        print('Matching tested CI bridge staged; collector will be rebuilt separately.')
+        return
     files = dict(FILES)
     for path in sorted((ROOT/'licenses').glob('TZDATA-*.txt')):
         name = str(path.relative_to(ROOT)).replace('\\','/')
