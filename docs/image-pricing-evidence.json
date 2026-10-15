@@ -1,0 +1,79 @@
+{
+  "verifiedAt": "2026-10-15",
+  "policy": "included-in-input-tokens",
+  "models": [
+    "gpt-6.1-sol",
+    "gpt-6-astra",
+    "gpt-6-luna"
+  ],
+  "sourcePath": "codex-rs/codex-api/src/sse/responses.rs",
+  "versions": [
+    {
+      "version": "0.153.0-alpha.5",
+      "commit": "522396ba0e838e43749ffd01c661fd4aa190e00e",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.153.4",
+      "commit": "3d2ee51ca2d5db578f328aa75e20aa22c0197c9a",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.154.0-alpha.6.2",
+      "commit": "b5bffd3ec4db487e7e3dec59663875b0ef7b72ca",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.155.0-alpha.9.2",
+      "commit": "4607249e430dac1c961df4dc615beae88e33cec8",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.155.0-alpha.16.3",
+      "commit": "ffa06df2317e3e65fc74da977a5884710c5382d5",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.158.0-alpha.2.1",
+      "commit": "0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.160.1",
+      "commit": "d27764b82f7118f674371e6d6e76271d9d606edb",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.162.0-alpha.2",
+      "commit": "74e804deeb1241d5fe699b31fb319f7d46454c42",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    },
+    {
+      "version": "0.162.0-alpha.17.2",
+      "commit": "740e5af33c71225640e0c1c1555c514c2c93ab74",
+      "inputAndCacheReadPassThrough": true,
+      "conversionSHA256": "2f9ec344aa05ffa09cd176ec8c7bfefee04752b7af8aad406cfe663d96485ff2"
+    }
+  ],
+  "sourceUrls": [
+    "https://developers.openai.com/api/docs/guides/images-vision",
+    "https://developers.openai.com/api/docs/guides/prompt-caching",
+    "https://developers.openai.com/api/reference/resources/admin/subresources/organization/subresources/usage/methods/completions"
+  ],
+  "rules": [
+    "Reported input tokens already include billable image tokens; apply the model input rate once.",
+    "Cached input tokens include cached image tokens; apply the verified cached input rate once.",
+    "Use reported whole-request input token total for the long context threshold.",
+    "Do not infer dimensions, detail or patch count; never reapply vision multipliers to reported tokens.",
+    "Only explicit input_image types qualify; audio, ambiguous media and image output remain unpriced.",
+    "Independent image generation or editing tool charges are excluded."
+  ]
+}

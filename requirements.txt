@@ -1,0 +1,2 @@
+# Optional source-runtime IANA timezone data; embedded in the Windows EXE.
+tzdata==2026.5

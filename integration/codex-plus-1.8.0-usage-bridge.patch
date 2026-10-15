@@ -1,0 +1,413 @@
+diff --git a/apps/codex-plus-manager/src/renderer-inject.test.ts b/apps/codex-plus-manager/src/renderer-inject.test.ts
+index 7b098ba..b2e093a 100644
+--- a/apps/codex-plus-manager/src/renderer-inject.test.ts
++++ b/apps/codex-plus-manager/src/renderer-inject.test.ts
+@@ -2025,6 +2025,9 @@ describe("拓展接口层", () => {
+       assert.ok(!routes.includes(forbidden), `${forbidden} 不应默认开放给拓展`);
+     }
+     assert.ok(routes.includes("/diagnostics/log"), "诊断上报应保持开放");
++    for (const route of ["/usage-status/today", "/usage-status/health", "/usage-status/capabilities"]) {
++      assert.ok(routes.includes(route), `${route} 只读用量接口应显式开放`);
++    }
+   });
+ 
+   it("接口对象在 IIFE 收尾前挂载", async () => {
+diff --git a/assets/inject/renderer-inject.js b/assets/inject/renderer-inject.js
+index 70ab7d7..4b48eb9 100644
+--- a/assets/inject/renderer-inject.js
++++ b/assets/inject/renderer-inject.js
+@@ -15808,6 +15808,9 @@
+     "/archived-thread",
+     "/export-markdown",
+     "/user-scripts/list",
++    "/usage-status/today",
++    "/usage-status/health",
++    "/usage-status/capabilities",
+   ]);
+ 
+   /** 单次调用的默认超时，略短于桥接自身的 26s，让拓展先拿到可读的错误。 */
+diff --git a/assets/inject/renderer-inject/91-extension-api.js b/assets/inject/renderer-inject/91-extension-api.js
+index 374c871..eedda1f 100644
+--- a/assets/inject/renderer-inject/91-extension-api.js
++++ b/assets/inject/renderer-inject/91-extension-api.js
+@@ -44,6 +44,9 @@
+     "/archived-thread",
+     "/export-markdown",
+     "/user-scripts/list",
++    "/usage-status/today",
++    "/usage-status/health",
++    "/usage-status/capabilities",
+   ]);
+ 
+   /** 单次调用的默认超时，略短于桥接自身的 26s，让拓展先拿到可读的错误。 */
+diff --git a/crates/codex-plus-core/src/lib.rs b/crates/codex-plus-core/src/lib.rs
+index a0b6ffe..49f7083 100644
+--- a/crates/codex-plus-core/src/lib.rs
++++ b/crates/codex-plus-core/src/lib.rs
+@@ -60,6 +60,7 @@ pub mod sub2api;
+ pub mod tools;
+ pub mod update;
+ pub mod user_scripts;
++pub mod usage_status;
+ pub mod version;
+ pub mod vision;
+ pub mod watcher;
+diff --git a/crates/codex-plus-core/src/routes.rs b/crates/codex-plus-core/src/routes.rs
+index a88d403..57cf14b 100644
+--- a/crates/codex-plus-core/src/routes.rs
++++ b/crates/codex-plus-core/src/routes.rs
+@@ -204,6 +204,8 @@ pub async fn handle_bridge_request(
+         }),
+     );
+     let result = match path {
++        "/usage-status/today" | "/usage-status/health" | "/usage-status/capabilities" =>
++            crate::usage_status::request(path, &payload).await,
+         "/settings/get" => settings_value(&ctx, ctx.settings.get_settings().await).await,
+         "/dictation/status" => ctx.settings.get_settings().await.map(|settings| {
+             let effective = crate::dictation::effective_settings(&settings);
+diff --git a/crates/codex-plus-core/src/usage_status.rs b/crates/codex-plus-core/src/usage_status.rs
+new file mode 100644
+index 0000000..69bf454
+--- /dev/null
++++ b/crates/codex-plus-core/src/usage_status.rs
+@@ -0,0 +1,315 @@
++//! 用户显式配对的本地用量采集器；只开放固定的只读查询。
++use std::io::Read;
++use std::path::Path;
++use std::time::Duration;
++
++use serde::Deserialize;
++use serde_json::{Value, json};
++
++const MAX_CONFIG: u64 = 8192;
++const MAX_RESPONSE: usize = 1024 * 1024;
++
++// 不派生 Debug：令牌不能进入诊断日志或 renderer。
++#[derive(Deserialize)]
++#[serde(rename_all = "camelCase", deny_unknown_fields)]
++struct Pairing {
++    schema_version: u32,
++    enabled: bool,
++    port: u16,
++    pairing_token: String,
++}
++
++fn load_pairing(path: &Path) -> anyhow::Result<Pairing> {
++    let file = std::fs::File::open(path).map_err(|_| anyhow::anyhow!("USAGE_NOT_PAIRED"))?;
++    let mut bytes = Vec::new();
++    file.take(MAX_CONFIG + 1)
++        .read_to_end(&mut bytes)
++        .map_err(|_| anyhow::anyhow!("USAGE_PAIRING_INVALID"))?;
++    anyhow::ensure!(bytes.len() as u64 <= MAX_CONFIG, "USAGE_PAIRING_INVALID");
++    let pairing: Pairing =
++        serde_json::from_slice(&bytes).map_err(|_| anyhow::anyhow!("USAGE_PAIRING_INVALID"))?;
++    anyhow::ensure!(pairing.enabled, "USAGE_DISABLED");
++    anyhow::ensure!(
++        pairing.schema_version == 1
++            && pairing.port >= 1024
++            && (32..=128).contains(&pairing.pairing_token.len())
++            && pairing
++                .pairing_token
++                .bytes()
++                .all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-'),
++        "USAGE_PAIRING_INVALID"
++    );
++    Ok(pairing)
++}
++
++fn query_path(route: &str, payload: &Value) -> anyhow::Result<String> {
++    let options = payload
++        .as_object()
++        .ok_or_else(|| anyhow::anyhow!("USAGE_INVALID_OPTIONS"))?;
++    if route != "/usage-status/today" {
++        anyhow::ensure!(
++            matches!(route, "/usage-status/health" | "/usage-status/capabilities")
++                && options.is_empty(),
++            "USAGE_INVALID_OPTIONS"
++        );
++        return Ok("/v1/health".into());
++    }
++    let keys = ["includeInternal", "includeCLI", "includeOther"];
++    anyhow::ensure!(
++        options
++            .iter()
++            .all(|(k, v)| keys.contains(&k.as_str()) && v.is_boolean()),
++        "USAGE_INVALID_OPTIONS"
++    );
++    let query = keys
++        .iter()
++        .map(|key| {
++            format!(
++                "{key}={}",
++                options.get(*key).and_then(Value::as_bool).unwrap_or(false)
++            )
++        })
++        .collect::<Vec<_>>()
++        .join("&");
++    Ok(format!("/v1/today?{query}"))
++}
++
++async fn fetch(pairing: &Pairing, path: &str) -> anyhow::Result<Value> {
++    let client = reqwest::Client::builder()
++        .no_proxy()
++        .redirect(reqwest::redirect::Policy::none())
++        .timeout(Duration::from_secs(3))
++        .build()
++        .map_err(|_| anyhow::anyhow!("USAGE_OFFLINE"))?;
++    // 调用方不能指定地址、路径、请求头、方法或任意文件。
++    let mut response = client
++        .get(format!("http://127.0.0.1:{}{path}", pairing.port))
++        .bearer_auth(&pairing.pairing_token)
++        .send()
++        .await
++        .map_err(network_error)?;
++    anyhow::ensure!(
++        response.status() != reqwest::StatusCode::FORBIDDEN,
++        "USAGE_AUTH_FAILED"
++    );
++    anyhow::ensure!(response.status().is_success(), "USAGE_BAD_RESPONSE");
++    anyhow::ensure!(
++        response.content_length().unwrap_or(0) <= MAX_RESPONSE as u64,
++        "USAGE_RESPONSE_TOO_LARGE"
++    );
++    let mut bytes = Vec::new();
++    while let Some(chunk) = response.chunk().await.map_err(network_error)? {
++        anyhow::ensure!(
++            bytes.len() + chunk.len() <= MAX_RESPONSE,
++            "USAGE_RESPONSE_TOO_LARGE"
++        );
++        bytes.extend_from_slice(&chunk);
++    }
++    let value: Value =
++        serde_json::from_slice(&bytes).map_err(|_| anyhow::anyhow!("USAGE_BAD_RESPONSE"))?;
++    anyhow::ensure!(
++        value.get("schemaVersion").and_then(Value::as_str) == Some("1"),
++        "USAGE_BAD_RESPONSE"
++    );
++    if path.starts_with("/v1/today?") {
++        anyhow::ensure!(
++            value.get("models").is_some_and(Value::is_array)
++                && value.get("internalModels").is_some_and(Value::is_array)
++                && value.get("totals").is_some_and(Value::is_object),
++            "USAGE_BAD_RESPONSE"
++        );
++    } else {
++        anyhow::ensure!(
++            matches!(
++                value.get("status").and_then(Value::as_str),
++                Some("ok" | "degraded")
++            ),
++            "USAGE_BAD_RESPONSE"
++        );
++    }
++    Ok(value)
++}
++
++fn network_error(error: reqwest::Error) -> anyhow::Error {
++    // 不转发 reqwest 的 URL / 头 / 原始系统错误。
++    anyhow::anyhow!(if error.is_timeout() {
++        "USAGE_TIMEOUT"
++    } else {
++        "USAGE_OFFLINE"
++    })
++}
++
++pub async fn request(route: &str, payload: &Value) -> anyhow::Result<Value> {
++    let path = query_path(route, payload)?;
++    let config_path = crate::paths::default_app_state_dir().join("usage-status.json");
++    if route == "/usage-status/capabilities" {
++        return Ok(json!({"schemaVersion":"1", "bridgeVersion":1,
++            "paired":load_pairing(&config_path).is_ok(), "readOnly":true}));
++    }
++    fetch(&load_pairing(&config_path)?, &path).await
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use wiremock::matchers::{header, method, path};
++    use wiremock::{Mock, MockServer, ResponseTemplate};
++
++    #[test]
++    fn options_only_allow_three_booleans() {
++        assert_eq!(
++            query_path("/usage-status/today", &json!({"includeCLI":true})).unwrap(),
++            "/v1/today?includeInternal=false&includeCLI=true&includeOther=false"
++        );
++        for payload in [
++            json!({"url":"http://example.com"}),
++            json!({"includeCLI":"true"}),
++            Value::Null,
++        ] {
++            assert!(query_path("/usage-status/today", &payload).is_err());
++        }
++        assert!(query_path("/usage-status/health", &json!({"includeCLI":false})).is_err());
++        assert!(query_path("/anything", &json!({})).is_err());
++    }
++
++    #[test]
++    fn pairing_is_opt_in_strict_and_bounded() {
++        let dir = tempfile::tempdir().unwrap();
++        let path = dir.path().join("pairing.json");
++        assert_eq!(
++            load_pairing(&path).err().unwrap().to_string(),
++            "USAGE_NOT_PAIRED"
++        );
++        let mut value =
++            json!({"schemaVersion":1,"enabled":true,"port":48763,"pairingToken":"x".repeat(43)});
++        std::fs::write(&path, value.to_string()).unwrap();
++        assert!(load_pairing(&path).is_ok());
++        value["enabled"] = json!(false);
++        std::fs::write(&path, value.to_string()).unwrap();
++        assert_eq!(
++            load_pairing(&path).err().unwrap().to_string(),
++            "USAGE_DISABLED"
++        );
++        value["enabled"] = json!(true);
++        value["url"] = json!("http://example.com");
++        std::fs::write(&path, value.to_string()).unwrap();
++        assert!(load_pairing(&path).is_err());
++        std::fs::write(&path, " ".repeat(MAX_CONFIG as usize + 1)).unwrap();
++        assert!(load_pairing(&path).is_err());
++    }
++
++    fn pairing(server: &MockServer) -> Pairing {
++        Pairing {
++            schema_version: 1,
++            enabled: true,
++            port: server.address().port(),
++            pairing_token: "x".repeat(43),
++        }
++    }
++
++    #[tokio::test]
++    async fn fixed_authenticated_health_request() {
++        let server = MockServer::start().await;
++        Mock::given(method("GET"))
++            .and(path("/v1/health"))
++            .and(header(
++                "authorization",
++                format!("Bearer {}", "x".repeat(43)),
++            ))
++            .respond_with(
++                ResponseTemplate::new(200)
++                    .set_body_json(json!({"schemaVersion":"1","status":"ok"})),
++            )
++            .expect(1)
++            .mount(&server)
++            .await;
++        assert_eq!(
++            fetch(&pairing(&server), "/v1/health").await.unwrap()["status"],
++            "ok"
++        );
++        let requests = server.received_requests().await.unwrap();
++        assert!(!requests[0].headers.contains_key("origin"));
++    }
++
++    #[tokio::test]
++    async fn redirect_auth_schema_and_body_limits() {
++        let server = MockServer::start().await;
++        for (template, expected) in [
++            (
++                ResponseTemplate::new(302).insert_header("location", "http://example.com"),
++                "USAGE_BAD_RESPONSE",
++            ),
++            (ResponseTemplate::new(403), "USAGE_AUTH_FAILED"),
++            (
++                ResponseTemplate::new(200).set_body_json(json!({"schemaVersion":"2"})),
++                "USAGE_BAD_RESPONSE",
++            ),
++            (
++                ResponseTemplate::new(200).set_body_string("x".repeat(MAX_RESPONSE + 1)),
++                "USAGE_RESPONSE_TOO_LARGE",
++            ),
++        ] {
++            server.reset().await;
++            Mock::given(path("/v1/health"))
++                .respond_with(template)
++                .mount(&server)
++                .await;
++            assert_eq!(
++                fetch(&pairing(&server), "/v1/health")
++                    .await
++                    .err()
++                    .unwrap()
++                    .to_string(),
++                expected
++            );
++        }
++    }
++
++    #[tokio::test]
++    async fn today_uses_fixed_scope_and_validates_summary() {
++        let server = MockServer::start().await;
++        let summary =
++            json!({"schemaVersion":"1","models":[],"internalModels":[],"totals":{"total":0}});
++        Mock::given(path("/v1/today"))
++            .and(wiremock::matchers::query_param("includeInternal", "false"))
++            .and(wiremock::matchers::query_param("includeCLI", "true"))
++            .and(wiremock::matchers::query_param("includeOther", "false"))
++            .respond_with(ResponseTemplate::new(200).set_body_json(&summary))
++            .expect(1)
++            .mount(&server)
++            .await;
++        let path = query_path("/usage-status/today", &json!({"includeCLI":true})).unwrap();
++        assert_eq!(fetch(&pairing(&server), &path).await.unwrap(), summary);
++    }
++
++    #[tokio::test]
++    async fn timeout_is_bounded_and_error_is_sanitized() {
++        let server = MockServer::start().await;
++        Mock::given(path("/v1/health"))
++            .respond_with(ResponseTemplate::new(200).set_delay(Duration::from_secs(5)))
++            .mount(&server)
++            .await;
++        assert_eq!(
++            fetch(&pairing(&server), "/v1/health")
++                .await
++                .err()
++                .unwrap()
++                .to_string(),
++            "USAGE_TIMEOUT"
++        );
++    }
++
++    #[tokio::test]
++    #[ignore = "requires explicit local pairing and the installed collector"]
++    async fn usage_status_live_installed_collector() {
++        let capability = request("/usage-status/capabilities", &json!({}))
++            .await
++            .unwrap();
++        assert_eq!(capability["paired"], true);
++        let health = request("/usage-status/health", &json!({})).await.unwrap();
++        assert_eq!(health["schemaVersion"], "1");
++        let today = request("/usage-status/today", &json!({})).await.unwrap();
++        assert!(today["models"].is_array());
++        assert!(today["totals"]["total"].is_number());
++    }
++}
+diff --git a/crates/codex-plus-core/tests/bridge_routes.rs b/crates/codex-plus-core/tests/bridge_routes.rs
+index 9548fbf..ffdd58e 100644
+--- a/crates/codex-plus-core/tests/bridge_routes.rs
++++ b/crates/codex-plus-core/tests/bridge_routes.rs
+@@ -22,6 +22,7 @@ async fn bridge_routes_cover_all_current_paths() {
+         ("/settings/get", json!({})),
+         ("/settings/set", json!({"providerSyncEnabled": true})),
+         ("/user-scripts/list", json!({})),
++        ("/usage-status/capabilities", json!({})),
+         ("/user-scripts/set-enabled", json!({"enabled": false})),
+         (
+             "/user-scripts/set-script-enabled",
+@@ -1577,3 +1578,12 @@ async fn retired_remote_routes_are_unavailable() {
+         );
+     }
+ }
++
++#[tokio::test]
++async fn usage_status_bridge_rejects_caller_selected_targets() {
++    for route in ["/usage-status/today", "/usage-status/health", "/usage-status/capabilities"] {
++        let result = handle_bridge_request(test_context(), route, json!({"url":"http://example.com"})).await;
++        assert_eq!(result["status"], "failed");
++        assert!(result["message"].as_str().unwrap().contains("USAGE_INVALID_OPTIONS"));
++    }
++}

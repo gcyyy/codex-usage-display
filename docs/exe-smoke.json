@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "version": "0.2.0",
+  "commands": [
+    "init",
+    "snapshot",
+    "native-response-dedup",
+    "pair",
+    "pair-bridge",
+    "serve-hidden",
+    "diagnose",
+    "single-instance",
+    "today",
+    "stop",
+    "rebuild"
+  ],
+  "environment": "Windows x64 executable / synthetic fixtures / own temporary loopback port"
+}

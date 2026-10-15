@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-10-14T07:43:26.317790+00:00",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "architecture": "AMD64",
+  "python": "3.11.15",
+  "files": 133,
+  "logBytes": 325835429,
+  "freshIndex": true,
+  "initialScanSeconds": 3.307869899988873,
+  "summaryQueries": 30,
+  "summaryMedianMs": 4.2823499970836565,
+  "summaryMaxMs": 101.77490001660772,
+  "unchangedScanMs": 118.4402999933809,
+  "unchangedScanReadBytes": 0,
+  "requestRecords": 3780,
+  "dataStatus": "partial",
+  "priceStatus": "partial",
+  "diagnosticCodes": [
+    "counter_decreased",
+    "subagent_accounting_unverified",
+    "unverified_log_version"
+  ],
+  "scope": "local desktop and linked work subagents; no credentials read; no upload"
+}

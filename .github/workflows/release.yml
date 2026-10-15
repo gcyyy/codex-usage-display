@@ -1,0 +1,76 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12.14'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Check release version
+        if: github.ref_type == 'tag'
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python -c "import os; from collector import __version__; assert os.environ['RELEASE_TAG'] == 'v' + __version__"
+      - name: Install pinned Rust toolchain
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal
+          if ($LASTEXITCODE -ne 0) { throw 'Rust installation failed' }
+          rustup default 1.99.0
+          if ($LASTEXITCODE -ne 0) { throw 'Rust activation failed' }
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -q
+      - run: npm ci --ignore-scripts
+      - run: npm run test:ui
+      - name: Prepare pinned bridge source
+        run: .\scripts\Prepare-BridgeSource.ps1
+      - name: Test and build bridge host
+        run: .\scripts\Build-BridgeHost.ps1
+      - name: Build and smoke test standalone collector; package full release
+        run: .\scripts\Build.ps1 -WithBridge
+      - name: Test installation from actual ZIP
+        run: python -m scripts.installation_smoke
+      - name: Export public project source and checksums
+        run: python -m scripts.export_source
+      - uses: actions/upload-artifact@v7
+        with:
+          name: windows-release
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            dist/codex-usage-display-*-windows-x64.zip
+            dist/codex-usage-display-*-source.zip
+            dist/SHA256SUMS.txt
+  draft:
+    if: github.ref_type == 'tag'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          name: windows-release
+          path: release-assets
+      - name: Create reviewable draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" release-assets/* --verify-tag --draft --title "$RELEASE_TAG" --notes-file CHANGELOG.md

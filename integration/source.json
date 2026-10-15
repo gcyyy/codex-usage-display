@@ -1,0 +1,17 @@
+{
+  "upstream": "https://github.com/BigPizzaV3/CodexPlusPlus",
+  "upstreamCommit": "f6092f29d6e31c5487c86c50a20e33c02c7e297e",
+  "upstreamVersion": "1.8.0",
+  "bridgeVersion": 1,
+  "license": "AGPL-3.0-only",
+  "patchSHA256": "a15a1f1ec04acfdc75e143474067a647c8e5a16e81bf0c2aaa1b9e65fcef78b7",
+  "files": [
+    "crates/codex-plus-core/src/usage_status.rs",
+    "crates/codex-plus-core/src/lib.rs",
+    "crates/codex-plus-core/src/routes.rs",
+    "crates/codex-plus-core/tests/bridge_routes.rs",
+    "assets/inject/renderer-inject/91-extension-api.js",
+    "assets/inject/renderer-inject.js",
+    "apps/codex-plus-manager/src/renderer-inject.test.ts"
+  ]
+}

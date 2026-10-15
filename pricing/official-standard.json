@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1",
+  "priceVersion": "openai-standard-2026-10-15-v2",
+  "verifiedAt": "2026-10-15",
+  "models": [
+    {
+      "modelId": "gpt-6.1-sol",
+      "aliases": [],
+      "currency": "USD",
+      "unitTokens": 1000000,
+      "tier": "Standard",
+      "rates": {
+        "uncachedInput": "2.00",
+        "cacheReadInput": "0.10",
+        "cacheWriteInput": "2.50",
+        "output": "10.00"
+      },
+      "longContext": {
+        "thresholdInputTokens": 272000,
+        "comparison": ">",
+        "inputField": "input_tokens",
+        "mode": "whole-request",
+        "rates": {
+          "uncachedInput": "4.00",
+          "cacheReadInput": "0.20",
+          "cacheWriteInput": "5.00",
+          "output": "15.00"
+        }
+      },
+      "sourceUrls": [
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+        "https://developers.openai.com/api/docs/guides/images-vision",
+        "https://developers.openai.com/api/docs/guides/prompt-caching"
+      ],
+      "verifiedAt": "2026-10-15",
+      "priceVersion": "openai-standard-2026-10-15-v2",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "imageInputPricing": "included-in-input-tokens"
+    },
+    {
+      "modelId": "gpt-6-astra",
+      "aliases": [],
+      "currency": "USD",
+      "unitTokens": 1000000,
+      "tier": "Standard",
+      "rates": {
+        "uncachedInput": "10.00",
+        "cacheReadInput": "1.00",
+        "cacheWriteInput": "12.50",
+        "output": "50.00"
+      },
+      "longContext": {
+        "thresholdInputTokens": 272000,
+        "comparison": ">",
+        "inputField": "input_tokens",
+        "mode": "whole-request",
+        "rates": {
+          "uncachedInput": "20.00",
+          "cacheReadInput": "2.00",
+          "cacheWriteInput": "25.00",
+          "output": "75.00"
+        }
+      },
+      "sourceUrls": [
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/models/gpt-6-astra",
+        "https://developers.openai.com/api/docs/guides/images-vision",
+        "https://developers.openai.com/api/docs/guides/prompt-caching"
+      ],
+      "verifiedAt": "2026-10-15",
+      "priceVersion": "openai-standard-2026-10-15-v2",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "imageInputPricing": "included-in-input-tokens"
+    },
+    {
+      "modelId": "gpt-6-luna",
+      "aliases": [],
+      "currency": "USD",
+      "unitTokens": 1000000,
+      "tier": "Standard",
+      "rates": {
+        "uncachedInput": "0.10",
+        "cacheReadInput": "0.01",
+        "cacheWriteInput": "0.125",
+        "output": "0.50"
+      },
+      "longContext": {
+        "thresholdInputTokens": 272000,
+        "comparison": ">",
+        "inputField": "input_tokens",
+        "mode": "whole-request",
+        "rates": {
+          "uncachedInput": "0.20",
+          "cacheReadInput": "0.02",
+          "cacheWriteInput": "0.25",
+          "output": "0.75"
+        }
+      },
+      "sourceUrls": [
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/models/gpt-6-luna",
+        "https://developers.openai.com/api/docs/guides/images-vision",
+        "https://developers.openai.com/api/docs/guides/prompt-caching"
+      ],
+      "verifiedAt": "2026-10-15",
+      "priceVersion": "openai-standard-2026-10-15-v2",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "imageInputPricing": "included-in-input-tokens"
+    }
+  ]
+}
