@@ -1,5 +1,7 @@
 # codex-usage-display
 
+[下载发行版](https://github.com/gcyyy/codex-usage-display/releases) · [Windows CI](https://github.com/gcyyy/codex-usage-display/actions/workflows/ci.yml)
+
 Windows Codex 桌面的当日 Token 与 API 等价金额面板。入口位于右上角、最小化按钮左侧，支持拖动、明暗主题和按模型展开。
 
 本项目是独立社区工具，需要 Codex++ 用户脚本支持；不是 OpenAI 官方产品。数据在本机读取，不调用模型 API，不需要 API Key。
