@@ -39,7 +39,7 @@ class InstallationTest(unittest.TestCase):
             path.write_bytes(content)
         self.manifest = {name:hashlib.sha256(content).hexdigest() for name,content in data.items()}
         self.save_manifest()
-        self.patches = [patch('collector.install.' + name) for name in ('run','start','stop_manager','start_manager')]
+        self.patches = [patch('collector.install.' + name) for name in ('run','start','stop_manager','start_manager','manager_processes')]
         self.mocks = [p.start() for p in self.patches]
         self.mocks[0].side_effect = self.command
 
@@ -126,6 +126,33 @@ class InstallationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unrelated'):
             install(self.args)
         self.assertEqual(private.read_text(), 'keep')
+
+    def test_worker_windows_block_shared_host_replacement_before_writes(self):
+        self.mocks[4].side_effect = lambda exe, include_workers=False: [1,2] if include_workers else [1]
+        with self.assertRaisesRegex(ValueError, 'multi-worker'):
+            install(self.args)
+        self.assertFalse(self.target.exists())
+
+    def test_partial_rollback_continues_restoring_other_files(self):
+        from collector.install import atomic
+        good, locked = self.root/'good', self.root/'locked'
+        good.write_bytes(b'old');locked.write_bytes(b'old')
+        tx = Transaction(self.root/'backup');tx.write(good,b'new');tx.write(locked,b'new')
+        def restore(path, data):
+            if path == locked:
+                raise PermissionError('synthetic locked file')
+            atomic(path,data)
+        with patch('collector.install.atomic',side_effect=restore), self.assertRaises(PermissionError):
+            tx.rollback()
+        self.assertEqual(good.read_bytes(),b'old')
+        self.assertEqual(locked.read_bytes(),b'new')
+
+    def test_recovery_attempts_old_collector_restart_even_if_a_restore_fails(self):
+        install(self.args)
+        self.mocks[1].side_effect = [RuntimeError('synthetic startup failure'), None]
+        with patch('collector.install.Transaction.rollback',side_effect=PermissionError('locked')), self.assertRaisesRegex(RuntimeError,'recovery incomplete'):
+            install(self.args)
+        self.assertEqual(self.mocks[1].call_count,3)
 
     def test_uninstall_keeps_modified_files_and_new_unrelated_settings(self):
         install(self.args)

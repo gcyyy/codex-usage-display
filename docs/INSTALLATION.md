@@ -16,7 +16,7 @@ Get-FileHash .\codex-usage-display-0.2.0-windows-x64.zip -Algorithm SHA256
 
 将结果与发布页清单比较，再完整解压。运行 Install.cmd 会验证内部 SHA256SUMS.json，然后安装到当前用户目录，无需管理员权限。程序未做代码签名；如果系统拦截，应先确认来源及哈希，按本机策略处理，不需要关闭系统防护。
 
-运行 Install.cmd 表示安装本项目采集器、脚本和包内 Codex++ 桥接。仅按路径及已核验文件哈希识别管理器进程，不停止官方 Codex 或多开工作进程。被替换文件备份在安装目录的 .installation-backups 下。安装结束在 Codex++ 点击“热重载脚本”。
+运行 Install.cmd 表示安装本项目采集器、脚本和包内 Codex++ 桥接。仅按路径及已核验文件哈希识别管理器进程，替换时结束并重启该管理器，不停止官方 Codex。若多开工作进程仍占用同一 EXE，会在写入前提示先关闭这些多开窗口。被替换文件备份在安装目录的 .installation-backups 下。安装结束在 Codex++ 点击“热重载脚本”。
 
 ## 固定路径
 

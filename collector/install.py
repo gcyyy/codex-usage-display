@@ -113,12 +113,21 @@ class Transaction:
         atomic(path, data)
 
     def rollback(self):
+        failures = []
         for entry in reversed(self.entries):
             path = Path(entry['path'])
-            if entry['backup']:
-                atomic(path, Path(entry['backup']).read_bytes())
-            else:
-                remove_file(path)
+            try:
+                if entry['backup']:
+                    backup = Path(entry['backup'])
+                    if path.exists() and checksum(path) == checksum(backup):
+                        continue
+                    atomic(path, backup.read_bytes())
+                else:
+                    remove_file(path)
+            except OSError as error:
+                failures.append(error)
+        if failures:
+            raise failures[0]
 
 
 def run(exe, *args):
@@ -150,7 +159,7 @@ def start(exe, state):
     raise RuntimeError('Collector startup timed out')
 
 
-def manager_processes(exe):
+def manager_processes(exe, include_workers=False):
     # Fixed PowerShell program, path comparison happens in Python; no string-built commands.
     script = "Get-CimInstance Win32_Process -Filter \"Name='codex-plus-plus.exe'\" | Select-Object ProcessId,ExecutablePath,CommandLine | ConvertTo-Json -Compress"
     result = subprocess.run(['powershell.exe', '-NoProfile', '-Command', script], capture_output=True,
@@ -162,12 +171,12 @@ def manager_processes(exe):
         rows = [rows]
     return [r['ProcessId'] for r in rows if r.get('ExecutablePath')
         and Path(r['ExecutablePath']).resolve() == Path(exe).resolve()
-        and '--codex-plus-multi-worker' not in (r.get('CommandLine') or '')]
+        and (include_workers or '--codex-plus-multi-worker' not in (r.get('CommandLine') or ''))]
 
 
 def stop_manager(exe):
     for pid in manager_processes(exe):
-        result = subprocess.run(['taskkill.exe', '/PID', str(pid)], capture_output=True, timeout=15,
+        result = subprocess.run(['taskkill.exe', '/F', '/PID', str(pid)], capture_output=True, timeout=15,
             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         if result.returncode:
             raise RuntimeError('Bridge manager could not stop')
@@ -222,6 +231,8 @@ def install(args):
             allowed.add(old['hostSHA256'])
         if checksum(host) not in allowed:
             raise ValueError('Unsupported Codex++ binary; do not replace an unverified version')
+        if checksum(host) != build['sha256'] and len(manager_processes(host, True)) > len(manager_processes(host)):
+            raise ValueError('Close Codex++ multi-worker windows before replacing the shared manager EXE')
     elif not (host_state / 'usage-status.json').is_file():
         raise ValueError('Use Install.cmd for the bundled bridge, or pair a supported host first')
     transaction = Transaction(target / '.installation-backups' / uuid.uuid4().hex)
@@ -274,7 +285,8 @@ def install(args):
             'migratedLegacy':old.get('migratedLegacy', bool(old_manifest and not old)),
             'pairingSHA256':checksum(pairing_path), 'backupDirectory':str(transaction.backup)}
         transaction.write(target / RECEIPT, json_bytes(record))
-    except Exception:
+    except Exception as original_error:
+        recovery_errors = []
         # Stop only our newly copied collector before restoring a running executable.
         if exe.exists():
             try:
@@ -282,12 +294,26 @@ def install(args):
             except (OSError, RuntimeError):
                 pass
         if host_changed:
-            stop_manager(host)
-        transaction.rollback()
+            try:
+                stop_manager(host)
+            except (OSError, RuntimeError) as error:
+                recovery_errors.append(error)
+        try:
+            transaction.rollback()
+        except OSError as error:
+            recovery_errors.append(error)
         if host_changed:
-            start_manager(host)
+            try:
+                start_manager(host)
+            except OSError as error:
+                recovery_errors.append(error)
         if stopped:
-            start(exe, state)
+            try:
+                start(exe, state)
+            except (OSError, RuntimeError) as error:
+                recovery_errors.append(error)
+        if recovery_errors:
+            raise RuntimeError('Installation failed; recovery incomplete. Backups retained in the install directory.') from original_error
         raise
     print(json.dumps({'status':'installed', 'version':__version__, 'transport':'bridge',
         'configurationPreserved':True, 'nextStep':'Hot reload user scripts in Codex++'}))
