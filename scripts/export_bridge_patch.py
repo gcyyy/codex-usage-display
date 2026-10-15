@@ -13,6 +13,7 @@ FILES = [
     'crates/codex-plus-core/src/routes.rs',
     'crates/codex-plus-core/tests/bridge_routes.rs',
     'assets/inject/renderer-inject/91-extension-api.js',
+    'assets/inject/renderer-inject/manifest.json',
     'assets/inject/renderer-inject.js',
     'apps/codex-plus-manager/src/renderer-inject.test.ts',
 ]
