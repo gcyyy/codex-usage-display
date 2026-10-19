@@ -8,7 +8,7 @@
   const scriptKey = window.__codexPlusUserScripts?.currentKey || KEY;
   let destroyed = false, opened = false, latest = null, offline = false, busy = false;
   let failure = null, requestStartedAt = 0, anchorControl = null, drag = null;
-  let connectionLogged = false;
+  let connectionLogged = false, starting = false, startMessage = "";
   const POSITION_KEY = `${KEY}-titlebar-offset-v1`;
   let offset = {x:0, y:0};
   try {
@@ -300,12 +300,12 @@
     detail.append(breakdown);
     return detail;
   }
-  const SCRIPT_VERSION = "0.2.4";
+  const SCRIPT_VERSION = "0.2.5";
   const repairSteps = {
     bridge_unsupported:"安装匹配当前 Codex++ 版本的完整用量面板包，再热重载脚本。不要降级或覆盖成旧桥接。",
     bridge_unavailable:"先在 Codex++ 热重载脚本；仍无法连接时，运行安装目录的 Check-Compatibility.cmd，区分宿主文件变化与后台故障。",
     bridge_not_paired:"使用匹配当前 Codex++ 的完整安装包重新配对，再热重载脚本。",
-    network_unreachable:"运行安装目录的 Start.cmd，再点击重试。仍失败时运行 Check-Compatibility.cmd。",
+    network_unreachable:"点击“启动采集器”；仍失败时运行 Check-Compatibility.cmd。",
     authorization_failed:"使用匹配版本的完整安装包重新配对；不要公开配置中的令牌。",
     bad_response:"从同一个完整包更新采集器和用户脚本，再热重载脚本。",
     bridge_timeout:"稍后重试；持续超时时运行 Check-Compatibility.cmd 检查后台状态。",
@@ -319,6 +319,8 @@
     section.dataset.attention = String(issues.length > 0);
     section.open = issues.length > 0;
     section.append(el("summary", issues.length ? "兼容性检查：需要处理" : "兼容性检查"));
+    if (offline && config?.transport === "bridge") section.append(startControl());
+    if (startMessage) section.append(el("p", startMessage, "small muted"));
     section.append(el("p", `面板 ${SCRIPT_VERSION} · 采集器 ${report?.collectorVersion || "未检测"}`, "small muted"));
     if (offline) section.append(el("p", "当前连接未通过；下方版本信息来自上次成功读取。", "small muted"));
     else if (!report) section.append(el("p", "当前采集器未提供兼容性报告，请更新采集器或运行 Check-Compatibility.cmd。", "small"));
@@ -450,6 +452,27 @@
       bad_response:"采集器返回的汇总格式不受支持，请更新采集器与用户脚本。",
       network_unreachable:"无法连接本地采集器。请先启动已安装的采集器，再点击重试；也可能是页面来源或网络策略限制。"
     }[failure] || "本地采集器未连接，请检查后台运行状态。";
+  }
+  async function startCollector() {
+    if (starting || destroyed) return;
+    starting = true; startMessage = "正在启动采集器…"; render();
+    try {
+      const result = await window.codexPlus.call("/usage-status/start", {}, {timeout:20000});
+      if (result?.status !== "running") throw new Error("USAGE_START_FAILED");
+      startMessage = "采集器已启动，正在刷新用量。";
+      await refresh();
+    } catch (error) {
+      const message = String(error?.message || "");
+      startMessage = message.includes("未开放的路由") ? "当前桥接不支持面板启动，请更新桥接；也可运行 Start.cmd。" :
+        message.includes("USAGE_START_NOT_INSTALLED") ? "未找到已安装的采集器，请重新安装用量插件。" :
+        message.includes("USAGE_START_TIMEOUT") ? "启动尚未完成，请稍后重试连接。" :
+        message.includes("USAGE_AUTH_FAILED") ? "采集器配对校验失败，请重新配对。" : "启动未成功，请运行 Check-Compatibility.cmd 查看诊断。";
+    } finally { starting = false; if (!destroyed) render(); }
+  }
+  function startControl() {
+    const control = button(starting ? "正在启动…" : "启动采集器", startCollector);
+    control.disabled = starting;
+    return control;
   }
   async function refresh() {
     if (destroyed || busy || !config) return;

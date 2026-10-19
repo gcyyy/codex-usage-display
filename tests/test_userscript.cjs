@@ -186,6 +186,22 @@ async function main() {
   await bridgePage.evaluate(()=>{window.bridgeError='USAGE_AUTH_FAILED'});
   await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
   await bridgePage.getByText(/配对令牌或页面来源未通过校验/).waitFor();
+  await bridgePage.evaluate(()=>{
+   window.bridgeError='USAGE_OFFLINE';window.startCalls=0;window.startUnsupported=true;
+   const original=window.codexPlus.call;
+   window.codexPlus.call=async(route,options)=>{
+    if(route==='/usage-status/start') {if(window.startUnsupported)throw new Error('未开放的路由：/usage-status/start');window.startCalls++;window.bridgeError=null;return {status:'running'};}
+    return original(route,options);
+   };
+  });
+  await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
+  await bridgePage.getByRole('button',{name:'启动采集器',exact:true}).click();
+  await bridgePage.getByText(/当前桥接不支持面板启动/).waitFor();
+  await bridgePage.evaluate(()=>{window.startUnsupported=false});
+  await bridgePage.getByRole('button',{name:'启动采集器',exact:true}).click();
+  await bridgePage.getByText('采集器已启动，正在刷新用量。').waitFor();
+  assert.equal(await bridgePage.evaluate(()=>window.startCalls),1);
+  assert.equal(await bridgePage.getByRole('button',{name:'启动采集器',exact:true}).count(),0);
   await bridgePage.evaluate(()=>window.__codexUsageStatus.destroy());
   await bridgePage.evaluate(()=>{window.bridgeError='USAGE_NOT_PAIRED'});
   await bridgePage.evaluate(bridgeScript);

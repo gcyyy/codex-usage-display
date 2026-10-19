@@ -1,47 +1,49 @@
 diff --git a/apps/codex-plus-manager/src/renderer-inject.test.ts b/apps/codex-plus-manager/src/renderer-inject.test.ts
-index af46992..54db490 100644
+index af46992..2e31d1c 100644
 --- a/apps/codex-plus-manager/src/renderer-inject.test.ts
 +++ b/apps/codex-plus-manager/src/renderer-inject.test.ts
 @@ -2026,6 +2026,9 @@ describe("拓展接口层", () => {
        assert.ok(!routes.includes(forbidden), `${forbidden} 不应默认开放给拓展`);
      }
      assert.ok(routes.includes("/diagnostics/log"), "诊断上报应保持开放");
-+    for (const route of ["/usage-status/today", "/usage-status/health", "/usage-status/capabilities"]) {
++    for (const route of ["/usage-status/today", "/usage-status/health", "/usage-status/start", "/usage-status/capabilities"]) {
 +      assert.ok(routes.includes(route), `${route} 只读用量接口应显式开放`);
 +    }
      assert.ok(routes.includes("/cdp/targets"), "CDP 页面列表应开放给拓展");
      assert.ok(routes.includes("/cdp/evaluate"), "CDP evaluate 应开放给拓展");
    });
 diff --git a/assets/inject/renderer-inject.js b/assets/inject/renderer-inject.js
-index aa94a4a..c4b4402 100644
+index aa94a4a..34871c9 100644
 --- a/assets/inject/renderer-inject.js
 +++ b/assets/inject/renderer-inject.js
-@@ -15435,6 +15435,9 @@
+@@ -15435,6 +15435,10 @@
      "/archived-thread",
      "/export-markdown",
      "/user-scripts/list",
 +    "/usage-status/today",
 +    "/usage-status/health",
++    "/usage-status/start",
 +    "/usage-status/capabilities",
      // 显式开放：给拓展注入 overlay 等独立 Codex 页面，不暴露任意 CDP 方法。
      "/cdp/targets",
      "/cdp/evaluate",
 diff --git a/assets/inject/renderer-inject/91-extension-api.js b/assets/inject/renderer-inject/91-extension-api.js
-index dd8c6b5..00286d6 100644
+index dd8c6b5..a902d63 100644
 --- a/assets/inject/renderer-inject/91-extension-api.js
 +++ b/assets/inject/renderer-inject/91-extension-api.js
-@@ -44,6 +44,9 @@
+@@ -44,6 +44,10 @@
      "/archived-thread",
      "/export-markdown",
      "/user-scripts/list",
 +    "/usage-status/today",
 +    "/usage-status/health",
++    "/usage-status/start",
 +    "/usage-status/capabilities",
      // 显式开放：给拓展注入 overlay 等独立 Codex 页面，不暴露任意 CDP 方法。
      "/cdp/targets",
      "/cdp/evaluate",
 diff --git a/assets/inject/renderer-inject/manifest.json b/assets/inject/renderer-inject/manifest.json
-index bd05564..41c20e9 100644
+index bd05564..41fc8eb 100644
 --- a/assets/inject/renderer-inject/manifest.json
 +++ b/assets/inject/renderer-inject/manifest.json
 @@ -93,7 +93,7 @@
@@ -49,7 +51,7 @@ index bd05564..41c20e9 100644
        "name": "91-extension-api.js",
        "description": "对外接口层 window.codexPlus：路由白名单、UI 注册、toast",
 -      "lines": 272
-+      "lines": 275
++      "lines": 276
      },
      {
        "name": "92-extension-host.js",
@@ -66,25 +68,25 @@ index ccec938..aee1062 100644
  pub mod vision;
  pub mod watcher;
 diff --git a/crates/codex-plus-core/src/routes.rs b/crates/codex-plus-core/src/routes.rs
-index 2ddcf48..92ad740 100644
+index 2ddcf48..e3ad4ab 100644
 --- a/crates/codex-plus-core/src/routes.rs
 +++ b/crates/codex-plus-core/src/routes.rs
 @@ -263,6 +263,8 @@ pub async fn handle_bridge_request(
          }),
      );
      let result = match path {
-+        "/usage-status/today" | "/usage-status/health" | "/usage-status/capabilities" =>
++        "/usage-status/today" | "/usage-status/health" | "/usage-status/start" | "/usage-status/capabilities" =>
 +            crate::usage_status::request(path, &payload).await,
          "/settings/get" => settings_value(&ctx, ctx.settings.get_settings().await).await,
          "/dictation/status" => ctx.settings.get_settings().await.map(|settings| {
              let effective = crate::dictation::effective_settings(&settings);
 diff --git a/crates/codex-plus-core/src/usage_status.rs b/crates/codex-plus-core/src/usage_status.rs
 new file mode 100644
-index 0000000..69bf454
+index 0000000..9bdd345
 --- /dev/null
 +++ b/crates/codex-plus-core/src/usage_status.rs
-@@ -0,0 +1,315 @@
-+//! 用户显式配对的本地用量采集器；只开放固定的只读查询。
+@@ -0,0 +1,403 @@
++//! 用户显式配对的本地用量采集器；固定查询与显式启动采集器。
 +use std::io::Read;
 +use std::path::Path;
 +use std::time::Duration;
@@ -103,6 +105,8 @@ index 0000000..69bf454
 +    enabled: bool,
 +    port: u16,
 +    pairing_token: String,
++    #[serde(default)]
++    collector_directory: Option<String>,
 +}
 +
 +fn load_pairing(path: &Path) -> anyhow::Result<Pairing> {
@@ -225,12 +229,65 @@ index 0000000..69bf454
 +    })
 +}
 +
++fn collector_directory(pairing: &Pairing) -> anyhow::Result<std::path::PathBuf> {
++    let directory = if let Some(directory) = &pairing.collector_directory {
++        std::path::PathBuf::from(directory)
++    } else {
++        std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA")
++            .ok_or_else(|| anyhow::anyhow!("USAGE_START_NOT_INSTALLED"))?)
++            .join("Programs").join("CodexUsageStatus")
++    };
++    anyhow::ensure!(directory.is_absolute(), "USAGE_START_NOT_INSTALLED");
++    anyhow::ensure!(directory.join("codex-usage-collector.exe").is_file()
++        && directory.join(".runtime/config.json").is_file(), "USAGE_START_NOT_INSTALLED");
++    Ok(directory)
++}
++
++async fn start_collector(pairing: &Pairing) -> anyhow::Result<Value> {
++    // Serialize starts across renderer windows; the collector also owns an OS instance lock.
++    static START_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
++    let _guard = START_LOCK.lock().await;
++    match fetch(pairing, "/v1/health").await {
++        Ok(_) => return Ok(json!({"schemaVersion":"1", "status":"running"})),
++        Err(error) if error.to_string() == "USAGE_OFFLINE" => {},
++        Err(error) => return Err(error),
++    }
++    let directory = collector_directory(pairing)?;
++    let mut command = std::process::Command::new(directory.join("codex-usage-collector.exe"));
++    command.arg("--state").arg(directory.join(".runtime")).arg("serve")
++        .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null())
++        .stderr(std::process::Stdio::null());
++    #[cfg(windows)] {
++        use std::os::windows::process::CommandExt;
++        command.creation_flags(0x08000000); // CREATE_NO_WINDOW
++    }
++    let mut child = command.spawn().map_err(|_| anyhow::anyhow!("USAGE_START_FAILED"))?;
++    for _ in 0..20 {
++        tokio::time::sleep(Duration::from_millis(250)).await;
++        if matches!(tokio::time::timeout(Duration::from_millis(500), fetch(pairing, "/v1/health")).await, Ok(Ok(_))) {
++            // Reap eventual exit without tying collector lifetime to the bridge request.
++            std::thread::spawn(move || { let _ = child.wait(); });
++            return Ok(json!({"schemaVersion":"1", "status":"running"}));
++        }
++        if child.try_wait().map_err(|_| anyhow::anyhow!("USAGE_START_FAILED"))?.is_some() {
++            anyhow::bail!("USAGE_START_FAILED");
++        }
++    }
++    std::thread::spawn(move || { let _ = child.wait(); });
++    anyhow::bail!("USAGE_START_TIMEOUT")
++}
++
 +pub async fn request(route: &str, payload: &Value) -> anyhow::Result<Value> {
++    if route == "/usage-status/start" {
++        anyhow::ensure!(payload.as_object().is_some_and(|o| o.is_empty()), "USAGE_INVALID_OPTIONS");
++        let config_path = crate::paths::default_app_state_dir().join("usage-status.json");
++        return start_collector(&load_pairing(&config_path)?).await;
++    }
 +    let path = query_path(route, payload)?;
 +    let config_path = crate::paths::default_app_state_dir().join("usage-status.json");
 +    if route == "/usage-status/capabilities" {
-+        return Ok(json!({"schemaVersion":"1", "bridgeVersion":1,
-+            "paired":load_pairing(&config_path).is_ok(), "readOnly":true}));
++        return Ok(json!({"schemaVersion":"1", "bridgeVersion":2,
++            "paired":load_pairing(&config_path).is_ok(), "readOnly":false, "canStartCollector":true}));
 +    }
 +    fetch(&load_pairing(&config_path)?, &path).await
 +}
@@ -240,6 +297,37 @@ index 0000000..69bf454
 +    use super::*;
 +    use wiremock::matchers::{header, method, path};
 +    use wiremock::{Mock, MockServer, ResponseTemplate};
++
++    #[tokio::test]
++    async fn start_rejects_renderer_commands_before_pairing() {
++        for payload in [json!({"exe":"evil.exe"}), json!({"args":[]}), Value::Null] {
++            assert_eq!(request("/usage-status/start", &payload).await.unwrap_err().to_string(), "USAGE_INVALID_OPTIONS");
++        }
++    }
++
++    #[tokio::test]
++    async fn start_reuses_authenticated_running_collector() {
++        let server = MockServer::start().await;
++        Mock::given(path("/v1/health"))
++            .respond_with(ResponseTemplate::new(200).set_body_json(json!({"schemaVersion":"1","status":"ok"})))
++            .mount(&server).await;
++        assert_eq!(start_collector(&pairing(&server)).await.unwrap()["status"], "running");
++        server.reset().await;
++        Mock::given(path("/v1/health")).respond_with(ResponseTemplate::new(403)).mount(&server).await;
++        assert_eq!(start_collector(&pairing(&server)).await.unwrap_err().to_string(), "USAGE_AUTH_FAILED");
++    }
++
++    #[test]
++    fn start_requires_installed_files() {
++        let dir = tempfile::tempdir().unwrap();
++        let p = Pairing {schema_version:1, enabled:true, port:48763, pairing_token:"x".repeat(43),
++            collector_directory:Some(dir.path().to_string_lossy().into_owned())};
++        assert!(collector_directory(&p).is_err());
++        std::fs::write(dir.path().join("codex-usage-collector.exe"), "fixture").unwrap();
++        std::fs::create_dir(dir.path().join(".runtime")).unwrap();
++        std::fs::write(dir.path().join(".runtime/config.json"), "{}").unwrap();
++        assert_eq!(collector_directory(&p).unwrap(), dir.path());
++    }
 +
 +    #[test]
 +    fn options_only_allow_three_booleans() {
@@ -290,6 +378,7 @@ index 0000000..69bf454
 +            enabled: true,
 +            port: server.address().port(),
 +            pairing_token: "x".repeat(43),
++            collector_directory: None,
 +        }
 +    }
 +
@@ -392,6 +481,7 @@ index 0000000..69bf454
 +            .await
 +            .unwrap();
 +        assert_eq!(capability["paired"], true);
++        assert_eq!(request("/usage-status/start", &json!({})).await.unwrap()["status"], "running");
 +        let health = request("/usage-status/health", &json!({})).await.unwrap();
 +        assert_eq!(health["schemaVersion"], "1");
 +        let today = request("/usage-status/today", &json!({})).await.unwrap();
@@ -400,7 +490,7 @@ index 0000000..69bf454
 +    }
 +}
 diff --git a/crates/codex-plus-core/tests/bridge_routes.rs b/crates/codex-plus-core/tests/bridge_routes.rs
-index 831a1d4..3a04699 100644
+index 831a1d4..8fbc834 100644
 --- a/crates/codex-plus-core/tests/bridge_routes.rs
 +++ b/crates/codex-plus-core/tests/bridge_routes.rs
 @@ -22,6 +22,7 @@ async fn bridge_routes_cover_all_current_paths() {
@@ -418,7 +508,7 @@ index 831a1d4..3a04699 100644
 +
 +#[tokio::test]
 +async fn usage_status_bridge_rejects_caller_selected_targets() {
-+    for route in ["/usage-status/today", "/usage-status/health", "/usage-status/capabilities"] {
++    for route in ["/usage-status/today", "/usage-status/health", "/usage-status/start", "/usage-status/capabilities"] {
 +        let result = handle_bridge_request(test_context(), route, json!({"url":"http://example.com"})).await;
 +        assert_eq!(result["status"], "failed");
 +        assert!(result["message"].as_str().unwrap().contains("USAGE_INVALID_OPTIONS"));

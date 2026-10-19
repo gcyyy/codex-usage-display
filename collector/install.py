@@ -284,7 +284,7 @@ def install(args):
         settings.setdefault('scripts', {})[SCRIPT_KEY] = True
         transaction.write(settings_path, json_bytes(settings))
         transaction.write(pairing_path, json_bytes({'schemaVersion':1, 'enabled':True,
-            'port':config['port'], 'pairingToken':config['pairingToken']}))
+            'port':config['port'], 'pairingToken':config['pairingToken'], 'collectorDirectory':str(target)}))
         original_host = old.get('originalHost')
         if args.install_bridge and checksum(host) != build['sha256']:
             transaction.save(host)

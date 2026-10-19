@@ -2,9 +2,9 @@
   "upstream": "https://github.com/BigPizzaV3/CodexPlusPlus",
   "upstreamCommit": "85f9117fe108719c6e4807ec60025a25042345f9",
   "upstreamVersion": "1.10.0",
-  "bridgeVersion": 1,
+  "bridgeVersion": 2,
   "license": "AGPL-3.0-only",
-  "patchSHA256": "a77560a90e0fe0845d6373689939c1ee740ce2a24d65a7e568b106af012b8e61",
+  "patchSHA256": "974023196a66ccbaa62b5c4844673c2485f3d697be046f369e476fc21668d3fc",
   "files": [
     "crates/codex-plus-core/src/usage_status.rs",
     "crates/codex-plus-core/src/lib.rs",

@@ -30,7 +30,7 @@ def main():
     destination.write_bytes(patch)
     (destination.parent / 'source.json').write_text(json.dumps({
         'upstream': 'https://github.com/BigPizzaV3/CodexPlusPlus',
-        'upstreamCommit': BASE, 'upstreamVersion': '1.10.0', 'bridgeVersion': 1,
+        'upstreamCommit': BASE, 'upstreamVersion': '1.10.0', 'bridgeVersion': 2,
         'license': 'AGPL-3.0-only', 'patchSHA256': hashlib.sha256(patch).hexdigest(),
         'files': FILES,
         'sourceDirectory': '.reference/CodexPlusPlus-1.10.0',

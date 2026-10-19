@@ -44,7 +44,7 @@ try {
     $taskHost = Join-Path $taskSource 'target\release\codex-plus-plus.exe'
     $taskDist = Join-Path $taskRoot 'dist'
     New-Item -ItemType Directory -Path $taskDist -Force | Out-Null
-    @{sourceCommit=$taskInfo.upstreamCommit; bridgeVersion=1; patchSHA256=$taskInfo.patchSHA256;
+    @{sourceCommit=$taskInfo.upstreamCommit; bridgeVersion=2; patchSHA256=$taskInfo.patchSHA256;
       sha256=(Get-FileHash -LiteralPath $taskHost -Algorithm SHA256).Hash.ToLowerInvariant();
       testsExecuted=$true; rustVersion=$taskRustVersion; builtAt=[DateTime]::UtcNow.ToString('o')
     } | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $taskDist 'bridge-host-build.json')
