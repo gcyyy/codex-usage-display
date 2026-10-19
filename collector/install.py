@@ -70,7 +70,7 @@ def verify_package(root):
                 or any(p in ('.', '..') for p in name.split('/'))):
             raise ValueError('Unsafe release path')
         if parts.parts[0] not in {'bridge','scripts','userscript','pricing','docs','integration','licenses',
-                'Install.cmd','Uninstall.cmd','Start.cmd','Stop.cmd','README.md','LICENSE',
+                'Install.cmd','Uninstall.cmd','Start.cmd','Stop.cmd','Check-Compatibility.cmd','README.md','LICENSE',
                 'THIRD_PARTY_NOTICES.md','codex-usage-collector.exe','release.json'}:
             raise ValueError('Release contains a private or unexpected path')
         target = (root / name).resolve()
@@ -288,7 +288,9 @@ def install(args):
         original_host = old.get('originalHost')
         if args.install_bridge and checksum(host) != build['sha256']:
             transaction.save(host)
-            if not original_host:
+            # An upstream upgrade replaces our previous patched host. Keep that
+            # newer verified binary as the uninstall baseline, never downgrade it.
+            if not original_host or checksum(host) != old.get('hostSHA256'):
                 original_host = dict(next(e for e in transaction.entries if e['path'] == str(host)))
             stop_manager(host)
             host_changed = True

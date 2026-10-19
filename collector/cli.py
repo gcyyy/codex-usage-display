@@ -71,7 +71,7 @@ def main(argv=None):
     parser.add_argument("--state", type=Path, default=app_root() / ".runtime")
     parser.add_argument("--home", action="append", help="明确配置 Codex home，可重复指定")
     parser.add_argument("--prices", type=Path, default=None)
-    parser.add_argument("command", choices=("init", "serve", "stop", "diagnose", "rebuild", "snapshot", "pair", "install", "uninstall", "verify-package"))
+    parser.add_argument("command", choices=("init", "serve", "stop", "diagnose", "rebuild", "snapshot", "pair", "install", "uninstall", "verify-package", "compatibility-check"))
     parser.add_argument("--package-root", type=Path, default=app_root())
     parser.add_argument("--install-dir", type=Path)
     parser.add_argument("--codex-plus-dir", type=Path)
@@ -100,6 +100,14 @@ def main(argv=None):
         except (OSError, KeyError, TypeError):
             print('Installation failed. Check package, permissions and local configuration.', file=sys.stderr)
             return 1
+    if args.command == "compatibility-check":
+        from .compatibility import check_installation
+        report = check_installation(args.state.resolve(), app_root())
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps(report, ensure_ascii=True))
+        return 0 if report["status"] == "ok" else 1
     state = args.state.resolve()
     try:
         config = config_at(state)
@@ -151,7 +159,8 @@ def main(argv=None):
                 index.price_version(prices.table["priceVersion"] if prices.table else None)
                 if args.command == "serve":
                     (state / "stop.request").unlink(missing_ok=True)
-                    CollectorService(index, prices, config).serve(state / "stop.request", state / "service.json")
+                    from .compatibility import HostCompatibility
+                    CollectorService(index, prices, config, HostCompatibility(app_root())).serve(state / "stop.request", state / "service.json")
                 else:
                     if args.command == "rebuild":
                         index.rebuild()

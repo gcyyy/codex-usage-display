@@ -300,6 +300,52 @@
     detail.append(breakdown);
     return detail;
   }
+  const SCRIPT_VERSION = "0.2.4";
+  const repairSteps = {
+    bridge_unsupported:"安装匹配当前 Codex++ 版本的完整用量面板包，再热重载脚本。不要降级或覆盖成旧桥接。",
+    bridge_unavailable:"先在 Codex++ 热重载脚本；仍无法连接时，运行安装目录的 Check-Compatibility.cmd，区分宿主文件变化与后台故障。",
+    bridge_not_paired:"使用匹配当前 Codex++ 的完整安装包重新配对，再热重载脚本。",
+    network_unreachable:"运行安装目录的 Start.cmd，再点击重试。仍失败时运行 Check-Compatibility.cmd。",
+    authorization_failed:"使用匹配版本的完整安装包重新配对；不要公开配置中的令牌。",
+    bad_response:"从同一个完整包更新采集器和用户脚本，再热重载脚本。",
+    bridge_timeout:"稍后重试；持续超时时运行 Check-Compatibility.cmd 检查后台状态。",
+    csp_blocked:"安装匹配当前 Codex++ 的桥接包，使用 bridge 配对；不要关闭页面安全策略。"
+  };
+  function compatibilityPanel(data) {
+    const report = data?.compatibility;
+    const issues = offline ? [{code:failure || "bridge_unavailable",message:connectionMessage(),action:repairSteps[failure] || repairSteps.bridge_unavailable}] : report?.issues || [];
+    const section = el("details", null, "pricing compatibility");
+    section.dataset.section = "compatibility";
+    section.dataset.attention = String(issues.length > 0);
+    section.open = issues.length > 0;
+    section.append(el("summary", issues.length ? "兼容性检查：需要处理" : "兼容性检查"));
+    section.append(el("p", `面板 ${SCRIPT_VERSION} · 采集器 ${report?.collectorVersion || "未检测"}`, "small muted"));
+    if (offline) section.append(el("p", "当前连接未通过；下方版本信息来自上次成功读取。", "small muted"));
+    else if (!report) section.append(el("p", "当前采集器未提供兼容性报告，请更新采集器或运行 Check-Compatibility.cmd。", "small"));
+    else {
+      const hostLabels = {matches_installation:"桥接文件与安装记录一致",changed:"桥接文件已变化",missing:"桥接文件缺失",unchecked:"桥接文件未能核验",not_installed:"没有桥接安装记录"};
+      section.append(el("p", `桥接：当前请求已连通；${hostLabels[report.host?.status] || "文件状态未检测"}。`, "small"));
+      if (report.logFormats?.status === "no_records") section.append(el("p", "当前范围暂无日志记录，尚不能验证日志格式。", "small"));
+      for (const version of report.logFormats?.versions || []) section.append(el("p", `Codex 日志 ${version.version}：${version.supported ? "已验证" : "待适配"}（${version.records} 条响应记录）`, "small"));
+    }
+    for (const item of issues) {
+      if (!offline) section.append(el("p", item.message, "warning small"));
+      section.append(el("p", `修复：${item.action}`, "small"));
+    }
+    section.append(el("p", "桥接断开时也可双击安装目录的 Check-Compatibility.cmd。", "small muted"));
+    section.append(button("复制诊断摘要", async () => {
+      const summary = JSON.stringify({schemaVersion:1,scriptVersion:SCRIPT_VERSION,collectorVersion:report?.collectorVersion || null,
+        connection:offline ? failure : "connected",snapshotStatus:offline ? "stale" : "current",hostStatus:report?.host?.status || "unchecked",
+        logFormats:report?.logFormats || null,issues:issues.map(x=>x.code)},null,2);
+      try { await navigator.clipboard.writeText(summary); }
+      catch {
+        const text = el("textarea"); text.readOnly = true; text.value = summary;
+        text.setAttribute("aria-label","诊断摘要"); text.style.width = "100%"; text.rows = 7; section.append(text); text.select();
+      }
+      if (!destroyed && section.isConnected) { section.append(el("p","诊断摘要已准备好，仅包含版本与状态，不含令牌或对话正文。","small muted")); position(); }
+    }));
+    return section;
+  }
   function render() {
     if (destroyed) return;
     const focus = shadow.activeElement;
@@ -318,10 +364,11 @@
     if (!latest) {
       entry.textContent = offline ? failure === "csp_blocked" ? "今日用量 · 页面连接受限" : "今日用量 · 采集器未连接" : "今日用量 · 连接中…";
       card.append(el("div", offline ? connectionMessage() : "等待首次索引…", "status"), button("重试", refresh));
-      if (offline) card.append(el("p", "安装目录 → scripts → Start-Collector.ps1。后台健康正常但仍无法连接时，请记录这里的连接状态。", "muted small"));
+      if (offline) card.append(compatibilityPanel(null));
       return;
     }
     const data = latest;
+    card.append(compatibilityPanel(data));
     const estimate = data.totalCostUSD ?? data.knownSubtotalUSD;
     const total = data.totals.total;
     const partial = data.totalCostUSD == null;
@@ -383,7 +430,7 @@
       const list = el("ul", null, "small"); data.diagnostics.forEach(d => list.append(el("li", `${d.message}（${d.count}）`))); pricing.append(list);
     }
     card.append(pricing);
-    card.querySelectorAll("details").forEach(n => n.open = expanded.has(n.dataset.model || n.dataset.section));
+    card.querySelectorAll("details").forEach(n => n.open = n.dataset.attention === "true" || expanded.has(n.dataset.model || n.dataset.section));
     card.scrollTop = scrollTop;
     if (focusIndex >= 0 && focus?.isConnected === false) card.querySelectorAll("button,select,input,summary,a")[focusIndex]?.focus({preventScroll:true});
     position();
@@ -396,6 +443,7 @@
     return {
       csp_blocked:"宿主页面的 connect-src 安全策略阻止访问本地采集器。需要宿主提供受控连接接口，重新启动采集器不能解除此限制。",
       authorization_failed:"采集器已响应，但配对令牌或页面来源未通过校验。请检查本机配对脚本与允许来源。",
+      bridge_unsupported:"当前 Codex++ 未开放用量桥接，升级可能已覆盖桥接补丁。请安装匹配当前版本的桥接；重启采集器不能修复此问题。",
       bridge_unavailable:"宿主用量桥接未连通，请确认已安装版本公开支持该接口。",
       bridge_not_paired:"宿主尚未启用本地用量桥接，请运行桥接配对安装程序。",
       bridge_timeout:"用量采集器响应超时，稍后重试。",
@@ -419,7 +467,7 @@
         try { result = await window.codexPlus.call("/usage-status/today", options, {timeout:6000}); }
         catch (error) {
           const code = String(error?.message || "").match(/^USAGE_[A-Z_]+/)?.[0];
-          failure = ({USAGE_NOT_PAIRED:"bridge_not_paired",USAGE_DISABLED:"bridge_not_paired",USAGE_PAIRING_INVALID:"bridge_not_paired",
+          failure = String(error?.message || "").startsWith("未开放的路由：/usage-status/") ? "bridge_unsupported" : ({USAGE_NOT_PAIRED:"bridge_not_paired",USAGE_DISABLED:"bridge_not_paired",USAGE_PAIRING_INVALID:"bridge_not_paired",
             USAGE_AUTH_FAILED:"authorization_failed",USAGE_TIMEOUT:"bridge_timeout",USAGE_OFFLINE:"network_unreachable",
             USAGE_BAD_RESPONSE:"bad_response",USAGE_RESPONSE_TOO_LARGE:"bad_response"})[code] || "bridge_unavailable";
           throw new Error("bridge_failed");

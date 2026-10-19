@@ -10,8 +10,9 @@ from .timeutil import utcnow
 
 
 class CollectorService:
-    def __init__(self, index, prices, config):
+    def __init__(self, index, prices, config, compatibility=None):
         self.index, self.prices, self.config = index, prices, config
+        self.compatibility = compatibility
         self.stop = threading.Event()
         self.wake = threading.Event()
         self.output_lock = threading.Lock()
@@ -45,6 +46,8 @@ class CollectorService:
             if self.failure:
                 result["dataStatus"], result["totalCostUSD"] = "partial", None
                 result["diagnostics"].append({"code": "scan_failed", "count": 1, "message": "索引任务失败，显示上次结果"})
+            if self.compatibility:
+                self.compatibility.enrich(result["compatibility"])
             return result
 
     def handler(self):

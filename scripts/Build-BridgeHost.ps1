@@ -1,4 +1,4 @@
-param([string]$SourceDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) '.reference\CodexPlusPlus'))
+param([string]$SourceDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) '.reference\CodexPlusPlus-1.10.0'))
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path $PSScriptRoot -Parent
 $taskSource = [IO.Path]::GetFullPath($SourceDirectory)

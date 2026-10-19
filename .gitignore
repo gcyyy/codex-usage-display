@@ -36,3 +36,4 @@ scripts/audit_usage.py
 scripts/check_bridge_installation.py
 scripts/verify_installed_upgrade.py
 scripts/verify_real_usage.py
+node_modules/

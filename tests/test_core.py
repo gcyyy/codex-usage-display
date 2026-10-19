@@ -90,6 +90,24 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(result['totals']['total'], 110)
         self.assertIsNone(result['totalCostUSD'])
 
+    def test_reviewed_0163_response_usage_survives_parser_upgrade(self):
+        from unittest.mock import patch
+        from collector.indexer import SUPPORTED_VERSIONS
+        version = '0.163.0-alpha.10.2'
+        write(self.path, [meta(cli_version=version), context(), count(), response(),
+            response(ts='2026-10-14T01:02:00Z')])
+        with patch('collector.indexer.SUPPORTED_VERSIONS', SUPPORTED_VERSIONS - {version}):
+            self.assertEqual(self.result()['dataStatus'], 'partial')
+        self.index.db.execute("UPDATE settings SET value='5' WHERE key='parser'")
+        self.index.db.commit()
+        self.index.close()
+        self.index = Indexer(self.root / 'cache.sqlite3', [self.home])
+        result = self.result()
+        self.assertEqual(result['totals']['total'], 110)
+        self.assertEqual(result['dataStatus'], 'complete')
+        self.assertEqual(result['priceStatus'], 'complete')
+        self.assertEqual(result['diagnostics'], [])
+
     def test_conflicting_native_response_ids_remain_unpriced(self):
         write(self.path, [meta(), context(), response(),
             response(value=usage(200,40), ts='2026-10-14T01:01:00Z')])

@@ -22,6 +22,8 @@ FILES = {
     "Uninstall.cmd": "Uninstall.cmd",
     "Start.cmd": "Start.cmd",
     "Stop.cmd": "Stop.cmd",
+    "Check-Compatibility.cmd": "Check-Compatibility.cmd",
+    "scripts/Check-Compatibility.ps1": "scripts/Check-Compatibility.ps1",
     "scripts/Uninstall.ps1": "scripts/Uninstall.ps1",
     "docs/INSTALLATION.md": "docs/INSTALLATION.md",
     "docs/CLEAN_MACHINE_TEST.md": "docs/CLEAN_MACHINE_TEST.md",
@@ -38,7 +40,7 @@ FILES = {
     "docs/IMAGE_PRICING.md": "docs/IMAGE_PRICING.md",
     "docs/image-pricing-evidence.json": "docs/image-pricing-evidence.json",
     "integration/README.md": "integration/README.md",
-    "integration/codex-plus-1.8.0-usage-bridge.patch": "integration/codex-plus-1.8.0-usage-bridge.patch",
+    "integration/codex-plus-1.10.0-usage-bridge.patch": "integration/codex-plus-1.10.0-usage-bridge.patch",
     "integration/source.json": "integration/source.json",
     "docs/exe-smoke.json": "docs/exe-smoke.json",
     "docs/benchmark.json": "docs/benchmark.json",
@@ -68,11 +70,11 @@ def import_bridge_package(package, root=ROOT):
         build = json.loads(archive.read(prefix+'bridge/build.json'))
         if (build.get('testsExecuted') is not True or build.get('bridgeVersion') != info['bridgeVersion']
                 or build.get('sourceCommit') != info['upstreamCommit'] or build.get('patchSHA256') != info['patchSHA256']
-                or manifest.get('integration/codex-plus-1.8.0-usage-bridge.patch') != info['patchSHA256']
+                or manifest.get('integration/codex-plus-1.10.0-usage-bridge.patch') != info['patchSHA256']
                 or manifest.get('bridge/codex-plus-plus.exe') != build.get('sha256')):
             raise ValueError('Cached bridge differs from reviewed source or has no passing tests')
         native = archive.read(prefix+'bridge/codex-plus-plus.exe')
-    target = root/'.reference/CodexPlusPlus/target/release/codex-plus-plus.exe'
+    target = root/'.reference/CodexPlusPlus-1.10.0/target/release/codex-plus-plus.exe'
     target.parent.mkdir(parents=True,exist_ok=True)
     target.write_bytes(native)
     (root/'dist').mkdir(exist_ok=True)
@@ -93,10 +95,10 @@ def main():
         name = str(path.relative_to(ROOT)).replace('\\','/')
         files[name] = name
     if args.with_bridge:
-        source = ROOT / '.reference/CodexPlusPlus'
+        source = ROOT / '.reference/CodexPlusPlus-1.10.0'
         build = json.loads((ROOT / 'dist/bridge-host-build.json').read_text(encoding='utf-8-sig'))
         info = json.loads((ROOT / 'integration/source.json').read_text(encoding='utf-8'))
-        patch = ROOT / 'integration/codex-plus-1.8.0-usage-bridge.patch'
+        patch = ROOT / 'integration/codex-plus-1.10.0-usage-bridge.patch'
         actual = subprocess.check_output(['git','diff','--binary',info['upstreamCommit']], cwd=source)
         if hashlib.sha256(actual).hexdigest() != info['patchSHA256'] or hashlib.sha256(patch.read_bytes()).hexdigest() != info['patchSHA256']:
             raise RuntimeError('Bridge working source differs from reviewed patch')
@@ -106,8 +108,7 @@ def main():
         bridge_dir = ROOT / 'dist/bridge'
         bridge_dir.mkdir(exist_ok=True)
         public_build = {k:build[k] for k in ('sha256','sourceCommit','bridgeVersion','patchSHA256','testsExecuted')}
-        public_build['compatibleHostSHA256'] = ['48f062f9de96904c4c8169a8ccb0ee978fcca0d33cb1c75df9dee67c453a5d3d',
-            'e5581705e865d135bac7e0c658ec8d8d4630ca26af030d6b717674e602d84863']
+        public_build['compatibleHostSHA256'] = info['compatibleHostSHA256']
         (bridge_dir / 'build.json').write_text(json.dumps(public_build, indent=2), encoding='utf-8')
         names = subprocess.check_output(['git','ls-files','-z'], cwd=source).decode('utf-8').split('\0')
         # Tracked upstream source plus every reviewed patch file; never archive the workspace.

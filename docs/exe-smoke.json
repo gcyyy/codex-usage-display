@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "version": "0.2.0",
+  "version": "0.2.4",
   "commands": [
     "init",
     "snapshot",
@@ -10,6 +10,7 @@
     "serve-hidden",
     "diagnose",
     "single-instance",
+    "compatibility-check-online-offline",
     "today",
     "stop",
     "rebuild"

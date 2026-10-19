@@ -1,10 +1,10 @@
 {
   "upstream": "https://github.com/BigPizzaV3/CodexPlusPlus",
-  "upstreamCommit": "f6092f29d6e31c5487c86c50a20e33c02c7e297e",
-  "upstreamVersion": "1.8.0",
+  "upstreamCommit": "85f9117fe108719c6e4807ec60025a25042345f9",
+  "upstreamVersion": "1.10.0",
   "bridgeVersion": 1,
   "license": "AGPL-3.0-only",
-  "patchSHA256": "baf789e0b8350d601301f4b595e00436cb0a4f6222de75c4e2b71e18c0b71a40",
+  "patchSHA256": "a77560a90e0fe0845d6373689939c1ee740ce2a24d65a7e568b106af012b8e61",
   "files": [
     "crates/codex-plus-core/src/usage_status.rs",
     "crates/codex-plus-core/src/lib.rs",
@@ -14,5 +14,10 @@
     "assets/inject/renderer-inject/manifest.json",
     "assets/inject/renderer-inject.js",
     "apps/codex-plus-manager/src/renderer-inject.test.ts"
+  ],
+  "sourceDirectory": ".reference/CodexPlusPlus-1.10.0",
+  "patchFile": "codex-plus-1.10.0-usage-bridge.patch",
+  "compatibleHostSHA256": [
+    "a5ad198c7e65a38bed5bd0480b7812c73080f6182ecf32d15c818d5f074f17e6"
   ]
 }

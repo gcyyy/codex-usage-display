@@ -114,6 +114,22 @@ class InstallationTest(unittest.TestCase):
         self.assertEqual((self.target / '.runtime/config.json').read_bytes(), config)
         self.assertFalse((self.target / 'codex-usage-collector.exe').exists())
 
+    def test_upstream_upgrade_becomes_uninstall_baseline(self):
+        install(self.args)
+        self.host.write_bytes(b'upstream-1.10.0')
+        build_path = self.package / 'bridge/build.json'
+        build = json.loads(build_path.read_text())
+        build['compatibleHostSHA256'].append(checksum(self.host))
+        build_path.write_bytes(json_bytes(build))
+        self.manifest['bridge/build.json'] = checksum(build_path)
+        self.save_manifest()
+        config = (self.target / '.runtime/config.json').read_bytes()
+        install(self.args)
+        install(self.args)  # Reinstall must retain the newer upstream baseline.
+        uninstall(self.args)
+        self.assertEqual(self.host.read_bytes(), b'upstream-1.10.0')
+        self.assertEqual((self.target / '.runtime/config.json').read_bytes(), config)
+
     def test_failed_first_install_can_be_retried_with_recovery_directories_present(self):
         self.mocks[1].side_effect = RuntimeError('synthetic startup failure')
         with self.assertRaises(RuntimeError):
@@ -194,7 +210,7 @@ class InstallationTest(unittest.TestCase):
         patch_body=b'reviewed patch';native=b'tested native bridge'
         info={'upstreamCommit':'a'*40,'patchSHA256':hashlib.sha256(patch_body).hexdigest(),'bridgeVersion':1}
         (root/'integration/source.json').write_bytes(json_bytes(info))
-        data={'bridge/codex-plus-plus.exe':native,'integration/codex-plus-1.8.0-usage-bridge.patch':patch_body,
+        data={'bridge/codex-plus-plus.exe':native,'integration/codex-plus-1.10.0-usage-bridge.patch':patch_body,
             'bridge/build.json':json_bytes({'sourceCommit':info['upstreamCommit'],'patchSHA256':info['patchSHA256'],
                 'bridgeVersion':1,'testsExecuted':True,'sha256':hashlib.sha256(native).hexdigest()})}
         archive=root/'cached.zip'
@@ -207,7 +223,7 @@ class InstallationTest(unittest.TestCase):
         from scripts.package_release import import_bridge_package
         root,archive=self.cached_bridge()
         import_bridge_package(archive,root)
-        self.assertEqual((root/'.reference/CodexPlusPlus/target/release/codex-plus-plus.exe').read_bytes(),b'tested native bridge')
+        self.assertEqual((root/'.reference/CodexPlusPlus-1.10.0/target/release/codex-plus-plus.exe').read_bytes(),b'tested native bridge')
 
     def test_ci_bridge_cache_mismatch_rejected_before_staging(self):
         from scripts.package_release import import_bridge_package

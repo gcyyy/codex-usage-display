@@ -3,6 +3,7 @@ from datetime import datetime, date
 from decimal import Decimal
 from .timeutil import utcnow, window
 from .tokens import zero_totals, add_totals
+from .compatibility import log_compatibility
 
 MESSAGES = {
     "unknown_model": "模型没有经过核实的官方价格",
@@ -45,6 +46,7 @@ def aggregate(index, prices, timezone="Asia/Shanghai", day=None, include_interna
     day, start, end = window(day, timezone)
     sessions, records, diagnostics = index.snapshot(start, end)
     included_sessions = set()
+    compatibility_records = []
 
     def desktop(sid, seen=None):
         seen = seen or set()
@@ -82,6 +84,8 @@ def aggregate(index, prices, timezone="Asia/Shanghai", day=None, include_interna
         is_internal = s["scope"] == "internal" or r["model"] == "codex-auto-review"
         if r["model"] == "codex-auto-review" and not include_internal:
             take = False
+        if take:
+            compatibility_records.append(r)
         amount, reason, price_id, context = prices.cost(r)
         target = models if take else internal if is_internal else None
         if target is None:
@@ -153,6 +157,7 @@ def aggregate(index, prices, timezone="Asia/Shanghai", day=None, include_interna
         "sourceScope": {"homes": len(index.homes), "rule": "desktop-originator-and-parent-chain", "includeInternal": include_internal,
                         "includeCLI": include_cli, "includeOther": include_other, "accountScope": "local-home-not-current-account-billing"},
         "dataStatus": data_status, "priceStatus": price_status,
+        "compatibility": log_compatibility(sessions, compatibility_records, included),
         "pricing": {"priceVersion": pricing["priceVersion"] if pricing else None, "verifiedAt": pricing["verifiedAt"] if pricing else None,
                     "currency": "USD", "tier": "Standard", "basis": "current-snapshot-text-and-image-input-token-equivalent"},
         "totals": totals, "totalCostUSD": money(known) if complete else None,

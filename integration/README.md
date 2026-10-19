@@ -1,6 +1,6 @@
 # Codex++ 只读用量桥接
 
-桥接针对 Codex++ 1.8.0、上游提交 f6092f29d6e31c5487c86c50a20e33c02c7e297e。许可 AGPL-3.0-only，来源与补丁哈希在 source.json。完整运行包包含桥接 EXE 和完整修改后源码 bridge/corresponding-source.zip；公共仓库保留受审阅的补丁和构建脚本。
+桥接针对 Codex++ 1.10.0、上游提交 85f9117fe108719c6e4807ec60025a25042345f9。许可 AGPL-3.0-only，来源与补丁哈希在 source.json。完整运行包包含桥接 EXE 和完整修改后源码 bridge/corresponding-source.zip；公共仓库保留受审阅的补丁和构建脚本。
 
 仅显式公开 /usage-status/today、/usage-status/health、/usage-status/capabilities。后端读取独立配对文件，只向固定 127.0.0.1 的已配对端口发送授权 GET，禁用代理和重定向。输入只允许三个布尔统计范围，配置上限 8 KiB、回复上限 1 MiB、超时 3 秒。不返回令牌、路径或网络错误详情，不修改 CSP，不开放通用代理或 /whale/*。
 

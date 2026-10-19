@@ -167,6 +167,22 @@ async function main() {
    assert.ok((await bridgePage.locator('#card').textContent()).includes('暂无独立占比'));
   }
   await bridgePage.evaluate(data=>{window.syntheticSummary=data},base);
+  await bridgePage.evaluate(()=>{window.syntheticSummary.compatibility={schemaVersion:1,collectorVersion:'0.2.4',host:{status:'changed'},
+   logFormats:{status:'needs_adapter',versions:[{version:'0.999.1',records:2,supported:false}]},
+   issues:[{code:'log_adapter_required',message:'日志版本待适配',action:'更新支持这些日志版本的采集器。'},{code:'host_changed',message:'桥接文件已变化',action:'安装匹配当前版本的桥接。'}]};});
+  await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
+  await bridgePage.getByText(/Codex 日志 0.999.1：待适配/).waitFor();
+  assert.equal(await bridgePage.locator('details.compatibility').evaluate(n=>n.open),true);
+  await bridgePage.evaluate(()=>{window.copiedDiagnostic=null;Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copiedDiagnostic=text}}});});
+  await bridgePage.getByRole('button',{name:'复制诊断摘要'}).click();
+  const diagnostic=JSON.parse(await bridgePage.evaluate(()=>window.copiedDiagnostic));
+  assert.deepEqual(diagnostic.issues,['log_adapter_required','host_changed']);
+  assert.equal(diagnostic.logFormats.versions[0].version,'0.999.1');
+  assert.ok(!JSON.stringify(diagnostic).includes('synthetic-only-token'));
+  await bridgePage.evaluate(()=>{delete window.syntheticSummary.compatibility});
+  await bridgePage.evaluate(()=>{window.bridgeError='未开放的路由：/usage-status/today'});
+  await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
+  await bridgePage.getByText(/当前 Codex\+\+ 未开放用量桥接/).waitFor();
   await bridgePage.evaluate(()=>{window.bridgeError='USAGE_AUTH_FAILED'});
   await bridgePage.getByRole('button',{name:'刷新',exact:true}).click();
   await bridgePage.getByText(/配对令牌或页面来源未通过校验/).waitFor();

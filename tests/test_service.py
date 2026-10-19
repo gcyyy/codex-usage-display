@@ -46,6 +46,23 @@ class ServiceTest(unittest.TestCase):
         self.assertNotIn(self.tmp.name,json.dumps(body));self.assertNotIn("sessionId",json.dumps(body))
         self.assertEqual(self.get("/v1/health",self.auth())[0],200)
 
+    def test_compatibility_report_and_local_cli_check_are_secret_free(self):
+        from collector.compatibility import HostCompatibility, check_installation
+        import hashlib
+        root = Path(self.tmp.name)
+        host = root / 'host.exe'; host.write_bytes(b'host')
+        (root / 'installation.json').write_text(json.dumps({'hostPath': str(host),
+            'hostSHA256': hashlib.sha256(host.read_bytes()).hexdigest()}))
+        state = root / 'state'; state.mkdir()
+        (state / 'config.json').write_text(json.dumps({**self.service.config, 'port': self.server.server_port}))
+        self.service.compatibility = HostCompatibility(root)
+        report = check_installation(state, root)
+        self.assertEqual(report['status'], 'ok')
+        self.assertEqual(report['collectorStatus'], 'connected')
+        self.assertEqual(report['logFormats']['status'], 'verified')
+        self.assertNotIn('x' * 48, json.dumps(report))
+        self.assertNotIn(str(root), json.dumps(report))
+
     def test_random_webpage_no_token_and_null_origin_denied(self):
         for headers in [{},{"Origin":"https://evil.invalid"},self.auth(Origin="https://evil.invalid"),self.auth(Origin="null"),self.auth(Origin="file://")]:
             code,response,_=self.get(headers=headers)

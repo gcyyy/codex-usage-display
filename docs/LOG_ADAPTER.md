@@ -1,5 +1,7 @@
 # 日志适配与数据边界
 
+2026-10-19：已核验 `0.163.0-alpha.10.2`。TokenUsage / TokenUsageRecord 字段及线程本地累计函数与上一验证版本相同。新版将响应记录提取为独立函数，带响应 ID 和服务端用量的不完整响应也通过同一格式持久化；仍只按记录中的实际 usage 计数，不使用上下文估算替代。解析器版本 6 自动重建派生缓存；其他未知版本仍标记待核验。精确提交及源码块哈希见 log-version-evidence.json。
+
 解析器版本：5（采集器 0.1.4）。已核验九个精确官方版本：`0.153.0-alpha.5`、`0.153.4`、`0.154.0-alpha.6.2`、`0.155.0-alpha.9.2`、`0.155.0-alpha.16.3`、`0.158.0-alpha.2.1`、`0.160.1`、`0.162.0-alpha.2`、`0.162.0-alpha.17.2`。官方 tag、提交、字段及实现摘要见 `log-version-evidence.json`。`synthetic-v1` 仅用于夹具。未核验版本不按前缀放行。
 
 优先消费 `token_usage_record`：按 `thread_id` 确认响应所有者，用 `response_id` 稳定去重，直接使用单次响应的 `usage`。对应源码为官方 [TokenUsageRecord](https://github.com/openai/codex/blob/740e5af33c71225640e0c1c1555c514c2c93ab74/codex-rs/protocol/src/protocol.rs#L2253) 与 [SessionState::record_token_usage](https://github.com/openai/codex/blob/740e5af33c71225640e0c1c1555c514c2c93ab74/codex-rs/core/src/state/session.rs#L218)。九个版本的线程本地累计实现摘要一致。不再将同一响应的 `token_count` 上下文通知叠加收费；该通知可能是估计或重算。

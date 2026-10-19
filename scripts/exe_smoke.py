@@ -52,12 +52,20 @@ def main():
             time.sleep(.1)
         else:raise AssertionError("EXE service not ready")
         run("diagnose")
+        compatibility = json.loads(run("compatibility-check", expected=1).stdout)
+        assert compatibility["collectorStatus"] == "connected"
+        assert compatibility["logFormats"]["status"] == "verified"
+        assert config["pairingToken"] not in json.dumps(compatibility)
+        assert compatibility["host"]["status"] == "not_installed"
         run("snapshot",expected=1)  # Same state may not mutate while service holds instance lock.
         opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
         request=urllib.request.Request(f"http://127.0.0.1:{config['port']}/v1/today",headers={"Authorization":"Bearer "+config["pairingToken"]})
         with opener.open(request,timeout=3) as response:assert json.loads(response.read())["totals"]["total"]==110000
         run("stop");assert process.wait(timeout=10)==0
         assert not (state/"service.json").exists()
+        offline = json.loads(run("compatibility-check", expected=1).stdout)
+        assert offline["collectorStatus"] == "offline"
+        assert any(i["code"] == "collector_offline" for i in offline["issues"])
         run("rebuild","--date",day,"--output",str(state/"rebuilt.json"))
         assert Decimal(json.loads((state/"rebuilt.json").read_text(encoding="utf-8"))["totalCostUSD"])==Decimal("0.186")
     finally:
@@ -65,7 +73,7 @@ def main():
             (state/"stop.request").touch()
             try:process.wait(timeout=10)
             except subprocess.TimeoutExpired:process.terminate();process.wait(timeout=5)
-    output={"status":"passed","version":__version__,"commands":["init","snapshot","native-response-dedup","pair","pair-bridge","serve-hidden","diagnose","single-instance","today","stop","rebuild"],
+    output={"status":"passed","version":__version__,"commands":["init","snapshot","native-response-dedup","pair","pair-bridge","serve-hidden","diagnose","single-instance","compatibility-check-online-offline","today","stop","rebuild"],
             "environment":"Windows x64 executable / synthetic fixtures / own temporary loopback port"}
     (ROOT/"docs"/"exe-smoke.json").write_text(json.dumps(output,indent=2),encoding="utf-8")
     print(json.dumps(output))

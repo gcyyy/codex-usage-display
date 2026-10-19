@@ -15,11 +15,11 @@ from .tokens import FIELDS, delta, normalize
 from .timeutil import parse_time, utcnow
 from .watch import DirectorySignals
 
-PARSER_VERSION = "5"
+PARSER_VERSION = "6"
 # Exact official tags reviewed in docs/log-version-evidence.json, never prefix-match unknown releases.
 SUPPORTED_VERSIONS = {"0.153.0-alpha.5", "0.153.4", "0.154.0-alpha.6.2", "0.155.0-alpha.9.2",
                       "0.155.0-alpha.16.3", "0.158.0-alpha.2.1", "0.160.1", "0.162.0-alpha.2",
-                      "0.162.0-alpha.17.2", "synthetic-v1"}
+                      "0.162.0-alpha.17.2", "0.163.0-alpha.10.2", "synthetic-v1"}
 META_KEYS = ("id", "timestamp", "originator", "cli_version", "source", "parent_thread_id",
              "forked_from_id", "fork_timestamp", "usage_includes_subagents")
 

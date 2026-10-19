@@ -1,9 +1,9 @@
-param([string]$SourceDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) '.reference\CodexPlusPlus'))
+param([string]$SourceDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) '.reference\CodexPlusPlus-1.10.0'))
 $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path $PSScriptRoot -Parent
 $taskSource = [IO.Path]::GetFullPath($SourceDirectory)
 $taskInfo = Get-Content (Join-Path $taskRoot 'integration\source.json') -Raw | ConvertFrom-Json
-$taskPatch = Join-Path $taskRoot 'integration\codex-plus-1.8.0-usage-bridge.patch'
+$taskPatch = Join-Path $taskRoot 'integration\codex-plus-1.10.0-usage-bridge.patch'
 if ((Get-FileHash -LiteralPath $taskPatch -Algorithm SHA256).Hash.ToLowerInvariant() -ne $taskInfo.patchSHA256) {
     throw 'Reviewed bridge patch checksum mismatch.'
 }
