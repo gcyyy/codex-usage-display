@@ -6,7 +6,7 @@
 
 这是独立社区项目，依赖 **Codex++** 加载用户脚本，不是 OpenAI 官方功能。采集器只读取本机用量日志，不调用模型 API，不需要 API Key。
 
-## 本地适配版本 0.2.5
+## 最新版本 0.2.5
 
 0.2.5 新增面板“启动采集器”按钮，离线时可直接启动后台进程并恢复连接，需要配套 bridge v2。
 
@@ -14,7 +14,7 @@
 
 0.2.3 另外支持已核验的 `0.163.0-alpha.10.2` 用量日志，自动重建旧缓存。
 
-当前源码桥接已迁移到 Codex++ **1.10.0**，保留新版功能，不要求降级。构建和安装按 `integration/source.json` 的固定提交与宿主哈希核验；卸载会恢复安装前的 1.10.0。此版本尚未公开发布，下方 v0.2.1 下载及 1.8.0 安装步骤仅适用于历史发行包，不能用于修复 1.10.0。
+当前源码桥接已迁移到 Codex++ **1.10.0**，保留新版功能，不要求降级。构建和安装按 `integration/source.json` 的固定提交与宿主哈希核验；卸载会恢复安装前的 1.10.0。用户已于 2026-10-20 确认另一台电脑测试通过。
 
 ## 界面预览
 
@@ -22,7 +22,7 @@
 | --- | --- |
 | ![浅色用量面板](docs/images/usage-light.png) | ![深色用量面板](docs/images/usage-dark.png) |
 
-截图使用**合成数据**生成，不含真实会话或账单。v0.2.1 完整安装包包含彩色 Token 分段条、精简明细、增强的折叠按钮，以及本文的安装辅助和验收脚本。
+截图使用**合成数据**生成，不含真实会话或账单。v0.2.5 完整安装包包含彩色 Token 分段条、精简明细、增强的折叠按钮，以及本文的安装辅助和验收脚本。
 
 条长表示模型占当日用量的比例；颜色表示模型内 Token 构成：绿色缓存命中、蓝色未命中缓存输入、橙色缓存写入、紫色非推理输出、粉色推理输出、灰色分类未知。悬停或展开查看数量和比例。图片已计入输入，但日志未单列图片 Token，暂无独立图片占比。
 
@@ -32,7 +32,7 @@
 | --- | --- | --- |
 | Windows x64 | 必需 | 当前不提供 macOS、Linux 或 Windows ARM64 安装包 |
 | 官方 Codex 桌面应用 | 必需 | 先确认能正常打开并登录；已有 Codex 无需重装 |
-| Codex++ 1.8.0 核验构建 | 必需 | 未安装按下一节补装；最新版不一定兼容 |
+| Codex++ 1.10.0 核验构建 | 必需 | 未安装按下一节补装；最新版不一定兼容 |
 | Microsoft Edge WebView2 Runtime | Codex++ 界面需要 | 缺少时从微软安装 Evergreen Runtime |
 | Windows PowerShell 5.1 | 系统自带 | 不要求 PowerShell 7、Git 或 GitHub CLI |
 | Python / Node.js / npm / Rust / 编译器 | **不需要** | 仅源码开发构建使用；完整包内采集器为独立 EXE |
@@ -47,9 +47,9 @@
 
 已有 Codex++ 时跳到第 2 步，**不要覆盖或降级现有未知版本**。本项目按 EXE 的 SHA-256 判断兼容性，不只看版本号。
 
-1. 到[上游 v1.8.0 发布页](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.8.0)，下载 `CodexPlusPlus-1.8.0-windows-x64-setup.exe`。不要下载 macOS 包或 Source code。
-2. 用 `Get-FileHash .\CodexPlusPlus-1.8.0-windows-x64-setup.exe -Algorithm SHA256` 核对本文下方的哈希，再运行安装程序。默认位置为 `%LOCALAPPDATA%\Programs\Codex++`。
-3. 若缺少 WebView2，先安装[微软 Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。上游 1.8.0 的 NSIS 安装脚本没有包含 WebView2 安装步骤。
+1. 到[上游 v1.10.0 发布页](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.10.0)，下载 `CodexPlusPlus-1.10.0-windows-x64-setup.exe`。不要下载 macOS 包或 Source code。
+2. 用 `Get-FileHash .\CodexPlusPlus-1.10.0-windows-x64-setup.exe -Algorithm SHA256` 核对本文下方的哈希，再运行安装程序。默认位置为 `%LOCALAPPDATA%\Programs\Codex++`。
+3. 若缺少 WebView2，先安装[微软 Evergreen WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。
 4. 打开 Codex++，确认官方 Codex 应用路径，沿用原有官方登录方式。无需为本面板新增 API Key、切换供应商或模型。通过 Codex++ 启动/连接 Codex，并启用所需界面增强。
 5. 进入用户脚本/拓展管理页，保存启用状态，确认 `%APPDATA%\Codex++\user_scripts.json` 已生成。不要伪造空配置来跳过首次初始化。
 
@@ -68,16 +68,16 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-CodexPlus.ps1 
 
 ### 2. 下载本项目完整包并校验
 
-当前公开版本：[v0.2.1](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.1)。下载 `codex-usage-display-0.2.1-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
+当前公开版本：[v0.2.5](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.5)。下载 `codex-usage-display-0.2.5-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
 
 可在 Windows PowerShell 中下载和校验，不执行任何远程脚本：
 
 ```powershell
 $taskDir = Join-Path $env:TEMP ('codex-usage-download-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $taskDir | Out-Null
-$taskName = 'codex-usage-display-0.2.1-windows-x64.zip'
+$taskName = 'codex-usage-display-0.2.5-windows-x64.zip'
 $taskZip = Join-Path $taskDir $taskName
-$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.1/'
+$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.5/'
 Invoke-WebRequest -UseBasicParsing ($taskBase + $taskName) -OutFile $taskZip
 Invoke-WebRequest -UseBasicParsing ($taskBase + 'SHA256SUMS.txt') -OutFile (Join-Path $taskDir 'SHA256SUMS.txt')
 # 从同一版本的清单精确匹配文件名，拒绝缺失或重复条目
@@ -91,7 +91,7 @@ Expand-Archive -LiteralPath $taskZip -DestinationPath (Join-Path $taskDir 'extra
 Set-Location (Join-Path $taskDir 'extracted\codex-usage-status')
 ```
 
-不要解压覆盖现有安装目录。新版请使用新版发布页文件名和哈希，不要继续套用 0.2.1 哈希。
+不要解压覆盖现有安装目录。新版请使用新版发布页文件名和哈希，不要继续套用 0.2.5 哈希。
 
 ### 3. 安装用量面板
 
@@ -124,7 +124,7 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 
 可以把下面这段交给安装 Agent：
 
-> 按 README 和 docs/INSTALLATION.md 安装 codex-usage-display。先确认 Windows x64、官方 Codex、现有 Codex++ 位置与 WebView2。缺少 Codex++ 时安装核验的上游 1.8.0，并完成首次设置；已有未知版本不得覆盖。使用完整 Release，不为最终用户安装 Python、Node 或 Rust。校验外层 ZIP 和内部清单，安装桥接并热重载脚本。执行 diagnose 和 Test-CleanMachine.ps1 -Mode Installed，并实际确认 UI。保留原有供应商、认证、会话、脚本和配对配置，不上传令牌或完整日志。最后报告版本、路径、服务状态、UI 验收结果和未完成项目，不把未检查项描述为通过。
+> 按 README 和 docs/INSTALLATION.md 安装 codex-usage-display。先确认 Windows x64、官方 Codex、现有 Codex++ 位置与 WebView2。缺少 Codex++ 时安装核验的上游 1.10.0，并完成首次设置；已有未知版本不得覆盖。使用完整 Release，不为最终用户安装 Python、Node 或 Rust。校验外层 ZIP 和内部清单，安装桥接并热重载脚本。执行 diagnose 和 Test-CleanMachine.ps1 -Mode Installed，并实际确认 UI。保留原有供应商、认证、会话、脚本和配对配置，不上传令牌或完整日志。最后报告版本、路径、服务状态、UI 验收结果和未完成项目，不把未检查项描述为通过。
 
 | 检查点 | 继续条件 | 失败处理 |
 | --- | --- | --- |
@@ -135,33 +135,24 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 | 后台 | diagnose 返回 ok | 启动采集器，查配置/端口 |
 | UI | 热重载后入口和刷新正常 | 查增强开关、脚本启用、桥接 |
 
-**版本验收：**确认安装回执中的版本为 `0.2.1`，热重载后能看到彩色分段条。包内 `release.json` 的 `sourceCommit` 标识构建源码，`SHA256SUMS.json` 校验实际脚本。不要用旧版包、旧进程或未热重载的界面验收新版。
+**版本验收：**确认安装回执中的版本为 `0.2.5`，热重载后可看到兼容性检查，离线时可点击“启动采集器”。包内 `release.json` 的 `sourceCommit` 标识构建源码，`SHA256SUMS.json` 校验实际脚本。不要用旧版包、旧进程或未热重载的界面验收新版。
 
 ## 固定文件与兼容性
 
-以下文件于 2026-10-15 核验。上游 ZIP 已实际下载并核对内含 EXE；新机安装器执行仍在待验证范围。
+以下安装器与 ZIP 哈希来自上游 v1.10.0 Release 资产元数据，宿主 EXE 哈希与本项目兼容清单一致。
 
 | 文件 | SHA-256 |
 | --- | --- |
-| Codex++ 1.8.0 Windows setup.exe | `831d82600370ee7fef600f40fefbc55e3a484e3701a76f8ddcf867ab96962647` |
-| Codex++ 1.8.0 Windows ZIP | `9b1a495d156242c747ff2b914d6ab141200948313db06f42e964cd0d410e694c` |
-| 上游 ZIP 内 codex-plus-plus.exe | `48f062f9de96904c4c8169a8ccb0ee978fcca0d33cb1c75df9dee67c453a5d3d` |
-| 本项目 v0.2.1 完整 Windows ZIP | 以 [v0.2.1 SHA256SUMS.txt](https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.1/SHA256SUMS.txt) 为准 |
+| Codex++ 1.10.0 Windows setup.exe | `9296620ddd55c97c54672dc7c5742d78a827ec0207e86da20d8e86b55ef902c7` |
+| Codex++ 1.10.0 Windows ZIP | `ae32edcf55780f703bf056d78abbedbae0876fe3f7822f997c4511d7bfee246b` |
+| 上游 ZIP 内 codex-plus-plus.exe | `a5ad198c7e65a38bed5bd0480b7812c73080f6182ecf32d15c818d5f074f17e6` |
+| 本项目 v0.2.5 完整 Windows ZIP | 以 [v0.2.5 SHA256SUMS.txt](https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.5/SHA256SUMS.txt) 为准 |
 
-来源：[上游 v1.8.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.8.0)、[本项目 v0.2.1](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.1)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
-
-## 测试范围：另一台电脑能否运行
-
-目标是：只有官方 Codex 的 Windows x64 电脑，补齐 Codex++/WebView2 后能使用完整包，不需要开发运行时。目前**没有第二台干净 Windows 电脑的端到端通过结论**。
-
-- 已有本机真实面板运行验证，以及单元、服务、UI、打包 EXE 测试。
-- 新增 PowerShell 验收从当前进程 PATH 隐藏 Python、Node、Rust、Git，在临时目录使用合成日志验证 EXE、安装、重复升级、服务和卸载。
-- PATH 隔离不能证明系统无预装 DLL，也未覆盖缺少 WebView2 的全新 Codex++ 首次启动。GitHub Windows runner 也不是空白系统。
-- 另一台电脑可以按 [CLEAN_MACHINE_TEST.md](docs/CLEAN_MACHINE_TEST.md) 复现；不用删除当前电脑的运行时或 Codex++ 来测试。
+来源：[上游 v1.10.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.10.0)、[本项目 v0.2.5](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.5)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
 
 ## 日常启动、升级与卸载
 
-安装目录：`%LOCALAPPDATA%\Programs\CodexUsageStatus`。电脑重启后运行其中 **Start.cmd**，再通过 Codex++ 使用 Codex。**Stop.cmd** 只停止采集器。重复启动复用已有实例，没有开机自启。
+安装目录：`%LOCALAPPDATA%\Programs\CodexUsageStatus`。电脑重启后可在用量面板“兼容性检查”中点击 **启动采集器**，也可运行安装目录的 **Start.cmd**。**Stop.cmd** 只停止采集器。重复启动复用已有实例，没有开机自启。
 
 升级：新版完整包解压到新目录，再运行 Install.cmd，保留 home、端口、配对配置和缓存；安装失败尝试回滚。然后热重载脚本。Codex++ 自身升级可能覆盖桥接，需要新的兼容包，不要盲目降级或覆盖。
 
@@ -205,4 +196,4 @@ npm run test:ui
 
 截图重建：设置 `$env:UPDATE_DOC_SCREENSHOTS='1'` 后运行 `npm run test:ui`。只使用合成夹具，不截图真实会话。详见[发布流程](docs/RELEASING.md)、[测试记录](docs/TEST_RESULTS.md)。发行包通过显式文件清单生成，并提供修改后桥接完整源码。许可证：[AGPL-3.0-only](LICENSE)；[第三方声明](THIRD_PARTY_NOTICES.md)。
 
-0.2.5 本地版本：面板提示采集器未连接时，在“兼容性检查”中点击“启动采集器”，即可在后台启动并重新连接。需要配套 bridge v2；旧桥接会显示升级提示。
+0.2.5：面板提示采集器未连接时，在“兼容性检查”中点击“启动采集器”，即可在后台启动并重新连接。需要配套 bridge v2；旧桥接会显示升级提示。

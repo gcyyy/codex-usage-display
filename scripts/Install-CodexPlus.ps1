@@ -36,9 +36,9 @@ if ($Install -and -not (Get-WebViewVersion)) {
     $taskProcess = Start-Process -FilePath $taskWebView -ArgumentList '/silent','/install' -WindowStyle Hidden -PassThru -Wait
     if ($taskProcess.ExitCode -notin @(0,3010) -or -not (Get-WebViewVersion)) { throw 'WebView2 installation failed or requires a restart.' }
 }
-$taskName = 'CodexPlusPlus-1.8.0-windows-x64-setup.exe'
-$taskSHA = '831d82600370ee7fef600f40fefbc55e3a484e3701a76f8ddcf867ab96962647'
-$taskUrl = 'https://github.com/BigPizzaV3/CodexPlusPlus/releases/download/v1.8.0/' + $taskName
+$taskName = 'CodexPlusPlus-1.10.0-windows-x64-setup.exe'
+$taskSHA = '9296620ddd55c97c54672dc7c5742d78a827ec0207e86da20d8e86b55ef902c7'
+$taskUrl = 'https://github.com/BigPizzaV3/CodexPlusPlus/releases/download/v1.10.0/' + $taskName
 New-Item -ItemType Directory -Force -Path $DownloadDirectory | Out-Null
 $taskSetup = Join-Path (Resolve-Path -LiteralPath $DownloadDirectory).Path $taskName
 if (-not (Test-Path -LiteralPath $taskSetup)) {
@@ -46,12 +46,12 @@ if (-not (Test-Path -LiteralPath $taskSetup)) {
     Invoke-WebRequest -UseBasicParsing -Uri $taskUrl -OutFile $taskSetup
 }
 if ((Get-FileHash -LiteralPath $taskSetup -Algorithm SHA256).Hash.ToLowerInvariant() -ne $taskSHA) { throw 'Codex++ installer SHA-256 mismatch. Nothing was executed.' }
-Write-Output 'Official Codex++ 1.8.0 installer SHA-256 verified.'
+Write-Output 'Official Codex++ 1.10.0 installer SHA-256 verified.'
 if (-not $Install) { Write-Output 'Download only. Rerun with -Install to install for the current user.'; return }
 $taskProcess = Start-Process -FilePath $taskSetup -ArgumentList '/S' -WindowStyle Hidden -Wait -PassThru
 if ($taskProcess.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $taskHost)) { throw 'Codex++ installation did not finish successfully.' }
 $taskHostSHA = (Get-FileHash -LiteralPath $taskHost -Algorithm SHA256).Hash.ToLowerInvariant()
-if ($taskHostSHA -ne '48f062f9de96904c4c8169a8ccb0ee978fcca0d33cb1c75df9dee67c453a5d3d') {
+if ($taskHostSHA -ne 'a5ad198c7e65a38bed5bd0480b7812c73080f6182ecf32d15c818d5f074f17e6') {
     throw 'Installed Codex++ build is not in the reviewed compatibility list. Preserve it and report the hash; do not bypass the usage installer check.'
 }
 Write-Output 'Codex++ installed. Open Codex++, retain official login, confirm the Codex app path and launch Codex. Then run the usage package Install.cmd and reload scripts.'

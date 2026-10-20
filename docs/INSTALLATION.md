@@ -1,18 +1,10 @@
 # Windows 安装、升级与卸载
 
-## 0.2.2 本地构建
+## 0.2.5 安装条件
 
-当前源码包针对已安装的 Codex++ **1.10.0**，不降级。安装前校验宿主哈希和包内清单，安装时备份原版 1.10.0，再替换为同版本桥接构建。原有采集器配置、配对令牌和其他脚本设置会保留。卸载恢复此次适配前的 1.10.0。
+Windows x64，官方 Codex 桌面应用，以及已安装并初始化的 Codex++ **1.10.0**。完整包无需 Python、Node 或 Rust。缺少 Codex++ 时，按 [README](../README.md#从只有-codex开始安装) 安装，或使用包内 `scripts/Install-CodexPlus.ps1` 下载校验官方 1.10.0 安装器；需要时补装微软 WebView2。
 
-下方首次安装 1.8.0 的步骤及 `Install-CodexPlus.ps1` 仅适用于历史 0.2.1 包；不要用于本次 1.10.0 适配。完整本地包解压到新目录后运行 `Install.cmd`，再验证 `diagnose` 和宿主日志中的 `usage_status_connected`。
-
-## 历史 0.2.1 安装条件
-
-如果电脑只有官方 Codex、没有 Codex++，先按 [README 的首次安装步骤](../README.md#从只有-codex开始安装) 补装核验的上游 Codex++ 1.8.0，必要时安装微软 WebView2，再实际打开管理器、确认 Codex 路径并保存用户脚本设置。仓库的 `scripts/Install-CodexPlus.ps1` 可下载校验并辅助首次安装，已有版本不会被覆盖。v0.2.1 完整包已包含该辅助脚本。
-
-完整包无需 Python、Node 或 Rust；Codex++ 界面仍需 WebView2。上游 1.8.0 安装器不自动补装 WebView2。另一台电脑的复现步骤与仅依赖 Windows PowerShell 5.1 的验收脚本见 [干净电脑验收](CLEAN_MACHINE_TEST.md)。
-
-Windows x64，已安装并启动过 Codex++。本版绑定 Codex++ 1.8.0 的核验构建，使用文件 SHA-256 判断兼容性，不能只看版本字符串。宿主不匹配时安装器在写入前停止，不覆盖新版或其他构建。
+安装器按已核验宿主 SHA-256 判断兼容性，不只看版本号；未知构建在写入前停止，不降级或覆盖。安装会备份原程序并替换为同版本 bridge v2，保留原有用量数据、配对令牌和其他脚本设置。用户已于 2026-10-20 确认另一台电脑测试通过。
 
 完整包 `codex-usage-display-VERSION-windows-x64.zip` 包含采集器、固定入口脚本、桥接程序、修改后桥接完整源码、许可证及每个文件的哈希清单。`collector-only` 包仅供已有兼容公开桥接的维护者使用，不能直接用于初次安装。
 
@@ -21,7 +13,7 @@ Windows x64，已安装并启动过 Codex++。本版绑定 Codex++ 1.8.0 的核�
 下载 Release ZIP 与同页 SHA256SUMS.txt。用 PowerShell 核对下载文件：
 
 ```powershell
-Get-FileHash .\codex-usage-display-0.2.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\codex-usage-display-0.2.5-windows-x64.zip -Algorithm SHA256
 ```
 
 将结果与发布页清单比较，再完整解压。运行 Install.cmd 会验证内部 SHA256SUMS.json，然后安装到当前用户目录，无需管理员权限。程序未做代码签名；如果系统拦截，应先确认来源及哈希，按本机策略处理，不需要关闭系统防护。
