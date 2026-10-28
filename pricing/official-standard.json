@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1",
-  "priceVersion": "openai-standard-2026-10-15-v2",
-  "verifiedAt": "2026-10-15",
+  "priceVersion": "openai-standard-2026-10-28-v1",
+  "verifiedAt": "2026-10-28",
   "models": [
     {
       "modelId": "gpt-6.1-sol",
@@ -33,8 +33,8 @@
         "https://developers.openai.com/api/docs/guides/images-vision",
         "https://developers.openai.com/api/docs/guides/prompt-caching"
       ],
-      "verifiedAt": "2026-10-15",
-      "priceVersion": "openai-standard-2026-10-15-v2",
+      "verifiedAt": "2026-10-28",
+      "priceVersion": "openai-standard-2026-10-28-v1",
       "effectiveFrom": null,
       "effectiveTo": null,
       "imageInputPricing": "included-in-input-tokens"
@@ -69,8 +69,8 @@
         "https://developers.openai.com/api/docs/guides/images-vision",
         "https://developers.openai.com/api/docs/guides/prompt-caching"
       ],
-      "verifiedAt": "2026-10-15",
-      "priceVersion": "openai-standard-2026-10-15-v2",
+      "verifiedAt": "2026-10-28",
+      "priceVersion": "openai-standard-2026-10-28-v1",
       "effectiveFrom": null,
       "effectiveTo": null,
       "imageInputPricing": "included-in-input-tokens"
@@ -105,8 +105,80 @@
         "https://developers.openai.com/api/docs/guides/images-vision",
         "https://developers.openai.com/api/docs/guides/prompt-caching"
       ],
-      "verifiedAt": "2026-10-15",
-      "priceVersion": "openai-standard-2026-10-15-v2",
+      "verifiedAt": "2026-10-28",
+      "priceVersion": "openai-standard-2026-10-28-v1",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "imageInputPricing": "included-in-input-tokens"
+    },
+    {
+      "modelId": "gpt-6.1-terra",
+      "aliases": [],
+      "currency": "USD",
+      "unitTokens": 1000000,
+      "tier": "Standard",
+      "rates": {
+        "uncachedInput": "1.00",
+        "cacheReadInput": "0.05",
+        "cacheWriteInput": "1.25",
+        "output": "5.00"
+      },
+      "longContext": {
+        "thresholdInputTokens": 272000,
+        "comparison": ">",
+        "inputField": "input_tokens",
+        "mode": "whole-request",
+        "rates": {
+          "uncachedInput": "2.00",
+          "cacheReadInput": "0.10",
+          "cacheWriteInput": "2.50",
+          "output": "7.50"
+        }
+      },
+      "sourceUrls": [
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/models/gpt-6.1-terra",
+        "https://developers.openai.com/api/docs/guides/images-vision",
+        "https://developers.openai.com/api/docs/guides/prompt-caching"
+      ],
+      "verifiedAt": "2026-10-28",
+      "priceVersion": "openai-standard-2026-10-28-v1",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "imageInputPricing": "included-in-input-tokens"
+    },
+    {
+      "modelId": "gpt-6-sol",
+      "aliases": [],
+      "currency": "USD",
+      "unitTokens": 1000000,
+      "tier": "Standard",
+      "rates": {
+        "uncachedInput": "2.00",
+        "cacheReadInput": "0.20",
+        "cacheWriteInput": "2.50",
+        "output": "10.00"
+      },
+      "longContext": {
+        "thresholdInputTokens": 272000,
+        "comparison": ">",
+        "inputField": "input_tokens",
+        "mode": "whole-request",
+        "rates": {
+          "uncachedInput": "4.00",
+          "cacheReadInput": "0.40",
+          "cacheWriteInput": "5.00",
+          "output": "15.00"
+        }
+      },
+      "sourceUrls": [
+        "https://developers.openai.com/api/docs/pricing",
+        "https://developers.openai.com/api/docs/models/gpt-6-sol",
+        "https://developers.openai.com/api/docs/guides/images-vision",
+        "https://developers.openai.com/api/docs/guides/prompt-caching"
+      ],
+      "verifiedAt": "2026-10-28",
+      "priceVersion": "openai-standard-2026-10-28-v1",
       "effectiveFrom": null,
       "effectiveTo": null,
       "imageInputPricing": "included-in-input-tokens"

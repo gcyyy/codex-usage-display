@@ -6,7 +6,9 @@
 
 这是独立社区项目，依赖 **Codex++** 加载用户脚本，不是 OpenAI 官方功能。采集器只读取本机用量日志，不调用模型 API，不需要 API Key。
 
-## 最新版本 0.2.5
+## 最新版本 0.2.6
+
+0.2.6 核验并支持 Codex 0.164.0-alpha.11.1 日志，新增 GPT-6.1 Terra 与 GPT-6 Sol 的官方 Standard API 等价价格，自动重建旧派生缓存。
 
 0.2.5 新增面板“启动采集器”按钮，离线时可直接启动后台进程并恢复连接，需要配套 bridge v2。
 
@@ -22,7 +24,7 @@
 | --- | --- |
 | ![浅色用量面板](docs/images/usage-light.png) | ![深色用量面板](docs/images/usage-dark.png) |
 
-截图使用**合成数据**生成，不含真实会话或账单。v0.2.5 完整安装包包含彩色 Token 分段条、精简明细、增强的折叠按钮，以及本文的安装辅助和验收脚本。
+截图使用**合成数据**生成，不含真实会话或账单。v0.2.6 完整安装包包含彩色 Token 分段条、精简明细、增强的折叠按钮，以及本文的安装辅助和验收脚本。
 
 条长表示模型占当日用量的比例；颜色表示模型内 Token 构成：绿色缓存命中、蓝色未命中缓存输入、橙色缓存写入、紫色非推理输出、粉色推理输出、灰色分类未知。悬停或展开查看数量和比例。图片已计入输入，但日志未单列图片 Token，暂无独立图片占比。
 
@@ -68,16 +70,16 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Install-CodexPlus.ps1 
 
 ### 2. 下载本项目完整包并校验
 
-当前公开版本：[v0.2.5](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.5)。下载 `codex-usage-display-0.2.5-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
+当前公开版本：[v0.2.6](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.6)。下载 `codex-usage-display-0.2.6-windows-x64.zip` 与同页 `SHA256SUMS.txt`。**不是** `source.zip`、自动生成的 Source code 或 `collector-only` 包。
 
 可在 Windows PowerShell 中下载和校验，不执行任何远程脚本：
 
 ```powershell
 $taskDir = Join-Path $env:TEMP ('codex-usage-download-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $taskDir | Out-Null
-$taskName = 'codex-usage-display-0.2.5-windows-x64.zip'
+$taskName = 'codex-usage-display-0.2.6-windows-x64.zip'
 $taskZip = Join-Path $taskDir $taskName
-$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.5/'
+$taskBase = 'https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.6/'
 Invoke-WebRequest -UseBasicParsing ($taskBase + $taskName) -OutFile $taskZip
 Invoke-WebRequest -UseBasicParsing ($taskBase + 'SHA256SUMS.txt') -OutFile (Join-Path $taskDir 'SHA256SUMS.txt')
 # 从同一版本的清单精确匹配文件名，拒绝缺失或重复条目
@@ -135,7 +137,7 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 | 后台 | diagnose 返回 ok | 启动采集器，查配置/端口 |
 | UI | 热重载后入口和刷新正常 | 查增强开关、脚本启用、桥接 |
 
-**版本验收：**确认安装回执中的版本为 `0.2.5`，热重载后可看到兼容性检查，离线时可点击“启动采集器”。包内 `release.json` 的 `sourceCommit` 标识构建源码，`SHA256SUMS.json` 校验实际脚本。不要用旧版包、旧进程或未热重载的界面验收新版。
+**版本验收：**确认安装回执中的版本为 `0.2.6`，热重载后可看到兼容性检查，离线时可点击“启动采集器”。包内 `release.json` 的 `sourceCommit` 标识构建源码，`SHA256SUMS.json` 校验实际脚本。不要用旧版包、旧进程或未热重载的界面验收新版。
 
 ## 固定文件与兼容性
 
@@ -146,9 +148,9 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 | Codex++ 1.10.0 Windows setup.exe | `9296620ddd55c97c54672dc7c5742d78a827ec0207e86da20d8e86b55ef902c7` |
 | Codex++ 1.10.0 Windows ZIP | `ae32edcf55780f703bf056d78abbedbae0876fe3f7822f997c4511d7bfee246b` |
 | 上游 ZIP 内 codex-plus-plus.exe | `a5ad198c7e65a38bed5bd0480b7812c73080f6182ecf32d15c818d5f074f17e6` |
-| 本项目 v0.2.5 完整 Windows ZIP | 以 [v0.2.5 SHA256SUMS.txt](https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.5/SHA256SUMS.txt) 为准 |
+| 本项目 v0.2.6 完整 Windows ZIP | 以 [v0.2.6 SHA256SUMS.txt](https://github.com/gcyyy/codex-usage-display/releases/download/v0.2.6/SHA256SUMS.txt) 为准 |
 
-来源：[上游 v1.10.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.10.0)、[本项目 v0.2.5](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.5)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
+来源：[上游 v1.10.0](https://github.com/BigPizzaV3/CodexPlusPlus/releases/tag/v1.10.0)、[本项目 v0.2.6](https://github.com/gcyyy/codex-usage-display/releases/tag/v0.2.6)。不同版本或重新构建产生的其他哈希不能直接视为兼容。
 
 ## 日常启动、升级与卸载
 
@@ -162,7 +164,7 @@ if ($LASTEXITCODE -ne 0) { throw '采集器健康检查失败' }
 
 按配置时区自然日汇总本机 `sessions` 和 `archived_sessions`，默认 `Asia/Shanghai`。默认计入桌面会话及工作子代理；内部活动单列，CLI/其他来源可切换。按稳定响应 ID 去重并处理分支继承与上下文重算。只存数字、模型和必要身份元数据，不存提示词、回答或图片地址。
 
-金额是**官方 Standard API 单价的等价估算，不是订阅实际扣费或完整账单**。价格快照核验于 2026-10-15；缓存、推理和图片不重复累加。未知模型或缺失分类不猜价格。“部分记录”与“已定价部分估算”分别指日志和价格覆盖。见[日志适配](docs/LOG_ADAPTER.md)、[图片规则](docs/IMAGE_PRICING.md)。
+金额是**官方 Standard API 单价的等价估算，不是订阅实际扣费或完整账单**。价格快照核验于 2026-10-28，包含 GPT-6.1 Sol、GPT-6.1 Terra、GPT-6 Astra、GPT-6 Luna 和 GPT-6 Sol；缓存、推理和图片不重复累加。未知模型或缺失分类不猜价格。“部分记录”与“已定价部分估算”分别指日志和价格覆盖。见[日志适配](docs/LOG_ADAPTER.md)、[图片规则](docs/IMAGE_PRICING.md)。
 
 配置在安装目录 `.runtime/config.json`；首次 home 优先 `CODEX_HOME`，否则当前用户 `.codex`。本机可能含多个账号记录。配置及桥接 `usage-status.json` 含配对令牌，**不要上传、截图或粘贴进 Issue**。修改 home、端口、时区前停止采集器；端口/令牌改变后重新安装配对。
 

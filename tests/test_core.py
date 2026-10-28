@@ -108,6 +108,31 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(result['priceStatus'], 'complete')
         self.assertEqual(result['diagnostics'], [])
 
+    def test_0164_terra_response_is_reindexed_and_priced(self):
+        from unittest.mock import patch
+        from collector.indexer import SUPPORTED_VERSIONS
+        version = '0.164.0-alpha.11.1'
+        write(self.path, [meta(cli_version=version), context('gpt-6.1-terra'), response(),
+            response(ts='2026-10-14T01:02:00Z')])
+        with patch('collector.indexer.SUPPORTED_VERSIONS', SUPPORTED_VERSIONS - {version}):
+            self.assertEqual(self.result()['dataStatus'], 'partial')
+        self.index.db.execute("UPDATE settings SET value='6' WHERE key='parser'")
+        self.index.db.commit()
+        self.index.close()
+        self.index = Indexer(self.root / 'cache.sqlite3', [self.home])
+        result = self.result()
+        self.assertEqual(result['totals']['total'], 110)
+        self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
+        self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.000131'))
+        self.assertEqual(result['diagnostics'], [])
+
+    def test_terra_long_context_boundary_with_cached_input(self):
+        for n, expected in [(272000, '0.227'), (272001, '0.429002')]:
+            with self.subTest(n=n):
+                a = usage(n, 100000, 0, 10000, 0)
+                write(self.path, [meta(), context('gpt-6.1-terra'), count(a, a)])
+                self.assertEqual(Decimal(self.result()['totalCostUSD']), Decimal(expected))
+
     def test_conflicting_native_response_ids_remain_unpriced(self):
         write(self.path, [meta(), context(), response(),
             response(value=usage(200,40), ts='2026-10-14T01:01:00Z')])

@@ -185,5 +185,30 @@
       "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4"
     },
     "notes": "Response recording is extracted into record_response_token_usage. Incomplete responses with a response ID and provider-reported usage now use the same record; no estimated usage is substituted. Fields, thread-local accumulation and response-ID ownership are unchanged."
+  },
+  {
+    "version": "0.164.0-alpha.11.1",
+    "tag": "rust-v0.164.0-alpha.11.1",
+    "commit": "6905ecede7816e91373e9eabda3f6b0368fc747b",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.163.0-alpha.10.2",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4"
+    },
+    "notes": "TokenUsage, TokenUsageRecord, and thread-local record_token_usage blocks are unchanged. Completed and identified incomplete responses persist provider-reported usage under the same response identity."
   }
 ]
