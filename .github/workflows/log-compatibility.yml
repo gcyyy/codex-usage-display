@@ -33,40 +33,56 @@ jobs:
           python - <<'PY'
           import json, os
           from pathlib import Path
-          from scripts.check_upstream_log import latest_tag, version_key
-          baseline = json.loads(Path('docs/log-version-evidence.json').read_text())[-1]['tag']
+          from scripts.check_upstream_log import candidate_tags, version_key
+          evidence = json.loads(Path('docs/log-version-evidence.json').read_text())
+          baseline = evidence[-1]['tag']
           tags = [line.split('\t', 1)[1].removeprefix('refs/tags/') for line in Path(os.environ['RUNNER_TEMP'], 'upstream-tags').read_text().splitlines()]
           requested = os.environ.get('REQUESTED_TAG', '').strip()
-          target = requested or latest_tag(tags, baseline)
-          if target:
-              version_key(target)
-              if target not in tags or version_key(target) <= version_key(baseline):
-                  raise SystemExit('Requested tag is missing or is not newer than the baseline')
+          if requested:
+              version_key(requested)
+              if requested not in tags or requested in {e['tag'] for e in evidence}:
+                  raise SystemExit('Requested tag is missing or already supported')
+          targets = [requested] if requested else candidate_tags(tags, evidence)
+          Path(os.environ['RUNNER_TEMP'], 'log-targets.json').write_text(json.dumps(targets))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
               print('baseline=' + baseline, file=out)
-              print('target=' + (target or ''), file=out)
+              print('has_targets=' + str(bool(targets)).lower(), file=out)
           PY
       - name: Fetch official source and compare
-        if: steps.tags.outputs.target != ''
+        if: steps.tags.outputs.has_targets == 'true'
+        id: compare
         env:
           BASELINE_TAG: ${{ steps.tags.outputs.baseline }}
-          TARGET_TAG: ${{ steps.tags.outputs.target }}
         run: |
           git init "$RUNNER_TEMP/codex-upstream"
           git -C "$RUNNER_TEMP/codex-upstream" remote add origin https://github.com/openai/codex.git
-          git -C "$RUNNER_TEMP/codex-upstream" fetch --no-tags --depth=1 origin "refs/tags/$BASELINE_TAG:refs/tags/$BASELINE_TAG" "refs/tags/$TARGET_TAG:refs/tags/$TARGET_TAG"
-          python -m scripts.check_upstream_log --source "$RUNNER_TEMP/codex-upstream" --tag "$TARGET_TAG" --apply
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          repo = root / 'codex-upstream'
+          targets = json.loads((root / 'log-targets.json').read_text())
+          tags = [os.environ['BASELINE_TAG'], *targets]
+          subprocess.run(['git', '-C', str(repo), 'fetch', '--no-tags', '--depth=1', 'origin', *[f'refs/tags/{tag}:refs/tags/{tag}' for tag in tags]], check=True)
+          args = [part for tag in targets for part in ('--tag', tag)]
+          with (root / 'comparison.json').open('w') as result:
+              subprocess.run(['python', '-m', 'scripts.check_upstream_log', '--source', str(repo), *args, '--apply'], stdout=result, check=True)
+          data = json.loads((root / 'comparison.json').read_text())
+          for item in data['changed']:
+              print('::warning::' + item['tag'] + ': ' + item['reason'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('matched=' + str(bool(data['matched'])).lower(), file=out)
+          PY
           python -m unittest tests.test_upstream_log -q
       - name: Open review pull request
-        if: steps.tags.outputs.target != ''
+        if: steps.compare.outputs.matched == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          TARGET_TAG: ${{ steps.tags.outputs.target }}
         run: |
           set -euo pipefail
-          version="${TARGET_TAG#rust-v}"
-          branch="codex/log-adapter-$version"
+          batch=$(python -c "import hashlib,json,os,pathlib; p=pathlib.Path(os.environ['RUNNER_TEMP'])/'comparison.json'; a=json.loads(p.read_text())['matched']; print(hashlib.sha256(','.join(a).encode()).hexdigest()[:12])")
+          branch="codex/log-adapter-batch-$batch"
           if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
             echo 'Review branch already exists; leaving it unchanged.'
             exit 0
@@ -75,14 +91,14 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "$branch"
           git add collector/indexer.py docs/log-version-evidence.json
-          git commit -m "Prepare log adapter for $version"
+          git commit -m "Prepare log adapter for matched Codex versions"
           git push origin "$branch"
           cat > "$RUNNER_TEMP/log-adapter-pr.md" <<'BODY'
-          The reviewed usage structures and recording functions match the last verified upstream tag. This prepares support and increments the parser version so existing caches are rebuilt.
+          The reviewed usage structures and recording functions match the last verified upstream tag for the versions listed in the diff. This prepares support and increments the parser version so existing caches are rebuilt. Tags with changed blocks are excluded and reported in the workflow logs.
 
           Before merging, review changes around call sites, serialization, model context, subagent ownership, and pricing semantics. Matching selected blocks alone does not prove end-to-end compatibility. The collector remains conservative until this PR is reviewed, merged, released, and installed.
 
           Validation: the comparison script verifies the baseline commit and block hashes, compares the target, and runs its regression tests. The workflow explicitly dispatches the full Windows CI on this branch.
           BODY
-          gh pr create --base "${{ github.event.repository.default_branch }}" --head "$branch" --title "Review Codex $version log compatibility" --body-file "$RUNNER_TEMP/log-adapter-pr.md"
+          gh pr create --base "${{ github.event.repository.default_branch }}" --head "$branch" --title "Review matched Codex log versions ($batch)" --body-file "$RUNNER_TEMP/log-adapter-pr.md"
           gh workflow run ci.yml --ref "$branch"

@@ -34,6 +34,20 @@ def latest_tag(tags, baseline):
     return max(candidates, key=version_key) if candidates else None
 
 
+SCAN_FLOOR = 'rust-v0.166.0-alpha.5.1'
+
+
+def candidate_tags(tags, evidence, limit=32):
+    known = {e['tag'] for e in evidence}
+    candidates = {t for t in tags if TAG.fullmatch(t) and version_key(t) >= version_key(SCAN_FLOOR) and t not in known}
+    # Keep checking new versions even if older versions need a manual review.
+    return sorted(candidates, key=version_key)[-limit:]
+
+
+class UpstreamChanged(ValueError):
+    pass
+
+
 def git(repo, *args):
     return subprocess.check_output(['git', '-C', str(repo), *args], stderr=subprocess.PIPE).decode('utf-8')
 
@@ -61,8 +75,8 @@ def compare(repo, baseline, tag):
     target_commit = git(repo, 'rev-parse', tag + '^{commit}').strip()
     if not re.fullmatch('[0-9a-f]{40}', target_commit):
         raise ValueError('Invalid upstream commit')
-    if version_key(tag) <= version_key(baseline['tag']):
-        raise ValueError('Target must be newer than reviewed baseline')
+    if tag == baseline['tag']:
+        raise ValueError('Target is already the reviewed baseline')
     hashes = {}
     for marker, path in BLOCKS.items():
         before = block(git(repo, 'show', base_commit + ':' + path), marker)
@@ -72,53 +86,75 @@ def compare(repo, baseline, tag):
         if expected != value:
             raise ValueError('Baseline evidence mismatch: ' + marker)
         if before != after:
-            raise ValueError('Upstream source changed: ' + marker)
+            raise UpstreamChanged('Upstream source changed: ' + marker)
         hashes[marker] = value
     return target_commit, hashes
 
 
-def prepare(root, baseline, tag, commit, hashes):
-    version = tag.removeprefix('rust-v')
+def prepare_many(root, baseline, matches):
     evidence_path = root / 'docs/log-version-evidence.json'
     index_path = root / 'collector/indexer.py'
     evidence = json.loads(evidence_path.read_text(encoding='utf-8'))
-    if evidence[-1] != baseline or any(e['version'] == version for e in evidence):
-        raise ValueError('Evidence changed or target already exists')
+    if evidence[-1] != baseline or not matches:
+        raise ValueError('Evidence changed or no matching tags')
     source = index_path.read_text(encoding='utf-8')
-    marker = '"' + baseline['version'] + '", "synthetic-v1"'
+    marker = '"synthetic-v1"}'
     if source.count(marker) != 1:
         raise ValueError('Supported version list has unexpected layout')
-    source = source.replace(marker, '"' + baseline['version'] + '", "' + version + '", "synthetic-v1"')
+    versions = []
+    for tag, commit, hashes in matches:
+        version_key(tag)
+        version = tag.removeprefix('rust-v')
+        if any(e['version'] == version for e in evidence) or version in versions:
+            raise ValueError('Target already exists')
+        versions.append(version)
+        entry = {'version': version, 'tag': tag, 'commit': commit,
+                 'recordFields': baseline['recordFields'], 'localThreadAccumulator': True,
+                 'perResponseUsage': True, 'sourceFunctionSHA256': hashes['pub(crate) fn record_token_usage('],
+                 'verifiedAgainst': baseline['version'], 'unchangedSourceBlocks': hashes,
+                 'notes': 'Automatically compared critical blocks; review surrounding changes and run regression tests before merging.'}
+        evidence.append(entry)
+    evidence.sort(key=lambda e: version_key(e['tag']))
+    source = source.replace(marker, ', '.join('"' + v + '"' for v in versions) + ', ' + marker)
     source, count = re.subn(r'PARSER_VERSION = "(\d+)"', lambda m: 'PARSER_VERSION = "' + str(int(m.group(1)) + 1) + '"', source)
     if count != 1:
         raise ValueError('Parser version has unexpected layout')
-    entry = {'version': version, 'tag': tag, 'commit': commit,
-             'recordFields': baseline['recordFields'], 'localThreadAccumulator': True,
-             'perResponseUsage': True, 'sourceFunctionSHA256': hashes['pub(crate) fn record_token_usage('],
-             'verifiedAgainst': baseline['version'], 'unchangedSourceBlocks': hashes,
-             'notes': 'Automatically compared critical blocks; review surrounding changes and run regression tests before merging.'}
-    evidence.append(entry)
-    # All validation above precedes mutation; no unknown version is enabled on comparison failure.
     index_path.write_text(source, encoding='utf-8')
     evidence_path.write_text(json.dumps(evidence, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+
+
+def prepare(root, baseline, tag, commit, hashes):
+    prepare_many(root, baseline, [(tag, commit, hashes)])
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True, help='Fetched official upstream git repository')
-    parser.add_argument('--tag', help='Exact upstream rust-v tag; omit to select newest fetched tag')
+    parser.add_argument('--tag', action='append', help='Exact upstream rust-v tag; repeat for a batch')
     parser.add_argument('--apply', action='store_true', help='Generate local changes after successful comparison')
     args = parser.parse_args()
     try:
-        baseline = json.loads((ROOT / 'docs/log-version-evidence.json').read_text(encoding='utf-8'))[-1]
-        tag = args.tag or latest_tag(git(args.source, 'tag', '--list', 'rust-v*').splitlines(), baseline['tag'])
-        if not tag:
+        evidence = json.loads((ROOT / 'docs/log-version-evidence.json').read_text(encoding='utf-8'))
+        baseline = evidence[-1]
+        tags = args.tag or candidate_tags(git(args.source, 'tag', '--list', 'rust-v*').splitlines(), evidence)
+        if not tags:
             print(json.dumps({'status': 'no_new_version'})); return 0
-        commit, hashes = compare(args.source, baseline, tag)
-        if args.apply:
-            prepare(ROOT, baseline, tag, commit, hashes)
-        print(json.dumps({'status': 'matched', 'tag': tag, 'commit': commit, 'baseline': baseline['commit'], 'applied': args.apply}))
-        return 0
+        known = {e['tag'] for e in evidence}
+        if len(set(tags)) != len(tags) or any(tag in known for tag in tags):
+            raise ValueError('Target is already verified or duplicated')
+        matches, changed = [], []
+        for tag in tags:
+            try:
+                commit, hashes = compare(args.source, baseline, tag)
+                matches.append((tag, commit, hashes))
+            except UpstreamChanged as exc:
+                changed.append({'tag': tag, 'reason': str(exc)})
+        if args.apply and matches:
+            prepare_many(ROOT, baseline, matches)
+        print(json.dumps({'status': 'matched' if matches else 'needs_review',
+                          'matched': [m[0] for m in matches], 'changed': changed,
+                          'baseline': baseline['commit'], 'applied': bool(args.apply and matches)}))
+        return 0 if matches else 1
     except (ValueError, KeyError, OSError, subprocess.CalledProcessError) as exc:
         print('Compatibility check failed: ' + str(exc), file=__import__('sys').stderr)
         return 1

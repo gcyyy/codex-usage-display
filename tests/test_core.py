@@ -145,6 +145,15 @@ class CoreTest(unittest.TestCase):
         write(self.path, [meta(cli_version='0.999999.0-alpha.5.2'), context(), response()])
         self.assertEqual(self.result()['dataStatus'], 'partial')
 
+    def test_0166_alpha6_is_supported_without_accepting_unknown_versions(self):
+        write(self.path, [meta(cli_version='0.166.0-alpha.6'), context('gpt-6.1-terra'), response()])
+        result = self.result()
+        self.assertEqual(result['dataStatus'], 'complete')
+        self.assertEqual(result['priceStatus'], 'complete')
+        self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.000131'))
+        write(self.path, [meta(cli_version='0.166.0-alpha.7.999'), context(), response()])
+        self.assertEqual(self.result()['dataStatus'], 'partial')
+
     def test_terra_long_context_boundary_with_cached_input(self):
         for n, expected in [(272000, '0.227'), (272001, '0.429002')]:
             with self.subTest(n=n):
