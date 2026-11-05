@@ -154,6 +154,19 @@ class CoreTest(unittest.TestCase):
         write(self.path, [meta(cli_version='0.166.0-alpha.7.999'), context(), response()])
         self.assertEqual(self.result()['dataStatus'], 'partial')
 
+    def test_reviewed_batch_counts_unique_native_responses(self):
+        versions = ('0.166.0', '0.167.0-alpha.1', '0.167.0-alpha.2',
+                    '0.167.0-alpha.3', '0.167.0-alpha.3.1', '0.167.0-alpha.5',
+                    '0.168.0-alpha.1', '0.168.0-alpha.2')
+        for version in versions:
+            with self.subTest(version=version):
+                write(self.path, [meta(cli_version=version), context('gpt-6.1-terra'),
+                    response(), response(ts='2026-10-14T01:02:00Z')])
+                result = self.result()
+                self.assertEqual(result['totals']['total'], 110)
+                self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
+                self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.000131'))
+
     def test_terra_long_context_boundary_with_cached_input(self):
         for n, expected in [(272000, '0.227'), (272001, '0.429002')]:
             with self.subTest(n=n):

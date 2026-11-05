@@ -293,7 +293,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.167.0-alpha.1",
@@ -321,7 +321,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.167.0-alpha.2",
@@ -349,7 +349,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.167.0-alpha.3",
@@ -377,7 +377,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.167.0-alpha.3.1",
@@ -405,7 +405,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.167.0-alpha.4",
@@ -461,7 +461,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.168.0-alpha.1",
@@ -489,7 +489,7 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   },
   {
     "version": "0.168.0-alpha.2",
@@ -517,6 +517,6 @@
       "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
-    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+    "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.167.0-alpha.4. Audio and other unsupported modalities remain unpriced."
   }
 ]
