@@ -464,6 +464,34 @@
     "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
   },
   {
+    "version": "0.167.0-alpha.4.1",
+    "tag": "rust-v0.167.0-alpha.4.1",
+    "commit": "d2c035639366e0bf2c316aa2065c24aabc12bcdc",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+  },
+  {
     "version": "0.167.0-alpha.5",
     "tag": "rust-v0.167.0-alpha.5",
     "commit": "ecddf7e5d687c4773efcdad2e5b167ff71d89e1c",
@@ -854,5 +882,89 @@
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
     "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.168.0-alpha.2. Audio and other unsupported modalities remain unpriced."
+  },
+  {
+    "version": "0.169.0-alpha.6",
+    "tag": "rust-v0.169.0-alpha.6",
+    "commit": "a79d0248ad67b3069e780e25c7c144010064b699",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+  },
+  {
+    "version": "0.169.0-alpha.7",
+    "tag": "rust-v0.169.0-alpha.7",
+    "commit": "25da1b0cb5e876882f8b1fafe186cdfcf3c712cc",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
+  },
+  {
+    "version": "0.169.0-alpha.8",
+    "tag": "rust-v0.169.0-alpha.8",
+    "commit": "5f4e579f02f767d3eba19e683b49787f5b61055a",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
   }
 ]
