@@ -24,8 +24,29 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
+      - name: Check pending adapter reviews
+        id: pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          gh api --paginate --slurp "repos/$GH_REPO/pulls?state=open&per_page=100" > "$RUNNER_TEMP/open-prs.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from scripts.check_upstream_log import pending_adapter_prs
+          pages = json.loads(Path(os.environ['RUNNER_TEMP'], 'open-prs.json').read_text())
+          pending = pending_adapter_prs([p for page in pages for p in page], os.environ['GH_REPO'])
+          blocked = bool(pending) and not os.environ.get('REQUESTED_TAG', '').strip()
+          if blocked:
+              print('Existing adapter PRs await review:', pending)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              print('blocked=' + str(blocked).lower(), file=out)
+          PY
       - name: Select upstream tags
         id: tags
+        if: steps.pending.outputs.blocked != 'true'
         env:
           REQUESTED_TAG: ${{ inputs.tag }}
         run: |

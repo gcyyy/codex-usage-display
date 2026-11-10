@@ -77,6 +77,8 @@ class PriceBook:
         return None
 
     def cost(self, request):
+        if request["model"] == "unknown":
+            return None, "missing_model_evidence", None, None
         row = self.lookup(request["model"])
         if row is None:
             return None, "unknown_model", None, None

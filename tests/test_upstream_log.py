@@ -80,6 +80,14 @@ class UpstreamCompatibilityTest(unittest.TestCase):
         selected = check.candidate_tags(many, [self.baseline], limit=3)
         self.assertEqual(selected, ['rust-v0.167.0-alpha.38', 'rust-v0.167.0-alpha.39', 'rust-v0.167.0-alpha.40'])
 
+    def test_pending_adapter_pr_filter_excludes_unrelated_and_forks(self):
+        def pr(n, repo='owner/repo', author='github-actions[bot]', ref='codex/log-adapter-batch-abc', state='open'):
+            return {'number': n, 'state': state, 'user': {'login': author},
+                    'head': {'ref': ref, 'repo': {'full_name': repo}}}
+        pulls = [pr(1), pr(2, repo='fork/repo'), pr(3, author='human'),
+                 pr(4, ref='feature/test'), pr(5, state='closed')]
+        self.assertEqual(check.pending_adapter_prs(pulls, 'owner/repo'), [1])
+
     def test_prepare_batch_increments_once_and_preserves_latest_baseline(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

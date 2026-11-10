@@ -1,6 +1,6 @@
 # Windows 安装、升级与卸载
 
-## 0.2.8 安装条件
+## 0.2.9 安装条件
 
 Windows x64，官方 Codex 桌面应用，以及已安装并初始化的 Codex++ **1.10.0**。完整包无需 Python、Node 或 Rust。缺少 Codex++ 时，按 [README](../README.md#从只有-codex开始安装) 安装，或使用包内 `scripts/Install-CodexPlus.ps1` 下载校验官方 1.10.0 安装器；需要时补装微软 WebView2。
 
@@ -13,7 +13,7 @@ Windows x64，官方 Codex 桌面应用，以及已安装并初始化的 Codex++
 下载 Release ZIP 与同页 SHA256SUMS.txt。用 PowerShell 核对下载文件：
 
 ```powershell
-Get-FileHash .\codex-usage-display-0.2.8-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\codex-usage-display-0.2.9-windows-x64.zip -Algorithm SHA256
 ```
 
 将结果与发布页清单比较，再完整解压。运行 Install.cmd 会验证内部 SHA256SUMS.json，然后安装到当前用户目录，无需管理员权限。程序未做代码签名；如果系统拦截，应先确认来源及哈希，按本机策略处理，不需要关闭系统防护。

@@ -37,6 +37,15 @@ def latest_tag(tags, baseline):
 SCAN_FLOOR = 'rust-v0.166.0-alpha.5.1'
 
 
+def pending_adapter_prs(pulls, repository):
+    """Only our own automated review branches block scheduled duplicate PRs."""
+    return [p['number'] for p in pulls
+            if p.get('state') == 'open'
+            and p.get('user', {}).get('login') == 'github-actions[bot]'
+            and (p.get('head', {}).get('repo') or {}).get('full_name') == repository
+            and p.get('head', {}).get('ref', '').startswith('codex/log-adapter-')]
+
+
 def candidate_tags(tags, evidence, limit=32):
     known = {e['tag'] for e in evidence}
     candidates = {t for t in tags if TAG.fullmatch(t) and version_key(t) >= version_key(SCAN_FLOOR) and t not in known}

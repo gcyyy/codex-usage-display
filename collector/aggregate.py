@@ -7,6 +7,7 @@ from .compatibility import log_compatibility
 
 MESSAGES = {
     "unknown_model": "模型没有经过核实的官方价格",
+    "missing_model_evidence": "响应缺少可核验的模型信息，暂不估算金额",
     "missing_ancestor": "缺少 fork 祖先，继承基线待核验",
     "missing_fork_baseline": "祖先中没有可验证的继承基线",
     "unknown_cache_write_semantics": "非零缓存写入的包含关系未验证",

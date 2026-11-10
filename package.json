@@ -1,6 +1,6 @@
 {
   "name": "codex-usage-display",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "private": true,
   "description": "Local Codex desktop token totals and Standard API equivalent estimate",
   "scripts": {

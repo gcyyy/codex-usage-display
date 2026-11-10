@@ -167,6 +167,20 @@ class CoreTest(unittest.TestCase):
                 self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
                 self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.000131'))
 
+    def test_reviewed_0169_batch_counts_unique_native_responses(self):
+        versions = ('0.167.0-alpha.3.2', '0.167.0', '0.168.0-alpha.3',
+                    '0.168.0-alpha.4', '0.168.0-alpha.5', '0.168.0-alpha.6',
+                    '0.168.0-alpha.7', '0.169.0-alpha.1', '0.169.0-alpha.2',
+                    '0.169.0-alpha.3', '0.169.0-alpha.4', '0.169.0-alpha.5')
+        for version in versions:
+            with self.subTest(version=version):
+                write(self.path, [meta(cli_version=version), context('gpt-6.1-terra'),
+                    response(), response(ts='2026-10-14T01:02:00Z')])
+                result = self.result()
+                self.assertEqual(result['totals']['total'], 110)
+                self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
+                self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.000131'))
+
     def test_terra_long_context_boundary_with_cached_input(self):
         for n, expected in [(272000, '0.227'), (272001, '0.429002')]:
             with self.subTest(n=n):
@@ -209,6 +223,16 @@ class CoreTest(unittest.TestCase):
         result = self.result()
         self.assertEqual(result['models'][0]['modelId'], 'unknown')
         self.assertIsNone(result['totalCostUSD'])
+        self.assertIn('missing_model_evidence', {d['code'] for d in result['diagnostics']})
+
+    def test_later_same_turn_context_does_not_guess_compaction_model(self):
+        write(self.path, [meta(), response(),
+            event('compacted', {'replacement_history': []}, '2026-10-14T01:00:00.007Z'),
+            context('gpt-6-astra', 't1', '2026-10-14T01:00:00.007Z')])
+        result = self.result()
+        self.assertEqual(result['models'][0]['modelId'], 'unknown')
+        self.assertIsNone(result['totalCostUSD'])
+        self.assertIn('missing_model_evidence', {d['code'] for d in result['diagnostics']})
 
     def test_native_media_and_explicit_compaction_replacement(self):
         write(self.path, [meta(), context(),
