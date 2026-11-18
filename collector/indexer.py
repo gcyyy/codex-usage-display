@@ -15,11 +15,22 @@ from .tokens import FIELDS, delta, normalize
 from .timeutil import parse_time, utcnow
 from .watch import DirectorySignals
 
-PARSER_VERSION = "12"
+PARSER_VERSION = "13"
 # Exact official tags reviewed in docs/log-version-evidence.json, never prefix-match unknown releases.
-SUPPORTED_VERSIONS = {"0.153.0-alpha.5", "0.153.4", "0.154.0-alpha.6.2", "0.155.0-alpha.9.2",
-                      "0.155.0-alpha.16.3", "0.158.0-alpha.2.1", "0.160.1", "0.162.0-alpha.2",
-                      "0.162.0-alpha.17.2", "0.163.0-alpha.10.2", "0.164.0-alpha.11.1", "0.166.0-alpha.5.1", "0.167.0-alpha.4", "0.166.0-alpha.6", "0.166.0", "0.167.0-alpha.1", "0.167.0-alpha.2", "0.167.0-alpha.3", "0.167.0-alpha.3.1", "0.167.0-alpha.5", "0.168.0-alpha.1", "0.168.0-alpha.2", "0.167.0-alpha.3.2", "0.167.0", "0.168.0-alpha.3", "0.168.0-alpha.4", "0.168.0-alpha.5", "0.168.0-alpha.6", "0.168.0-alpha.7", "0.169.0-alpha.1", "0.169.0-alpha.2", "0.169.0-alpha.3", "0.169.0-alpha.4", "0.169.0-alpha.5", "synthetic-v1"}
+SUPPORTED_VERSIONS = {
+    "0.153.0-alpha.5", "0.153.4", "0.154.0-alpha.6.2", "0.155.0-alpha.9.2", "0.155.0-alpha.16.3",
+    "0.158.0-alpha.2.1", "0.160.1", "0.162.0-alpha.2", "0.162.0-alpha.17.2", "0.163.0-alpha.10.2",
+    "0.164.0-alpha.11.1", "0.166.0-alpha.5.1", "0.166.0-alpha.6", "0.166.0", "0.167.0-alpha.1",
+    "0.167.0-alpha.2", "0.167.0-alpha.3", "0.167.0-alpha.3.1", "0.167.0-alpha.3.2", "0.167.0-alpha.4",
+    "0.167.0-alpha.4.2", "0.167.0-alpha.4.3", "0.167.0-alpha.5", "0.167.0", "0.167.1", "0.167.2",
+    "0.168.0-alpha.1", "0.168.0-alpha.2", "0.168.0-alpha.3", "0.168.0-alpha.4", "0.168.0-alpha.5",
+    "0.168.0-alpha.6", "0.168.0-alpha.7", "0.168.0", "0.169.0-alpha.1", "0.169.0-alpha.2",
+    "0.169.0-alpha.3", "0.169.0-alpha.4", "0.169.0-alpha.5", "0.169.0-alpha.6", "0.169.0-alpha.7",
+    "0.169.0-alpha.8", "0.169.0-alpha.9", "0.169.0-alpha.10", "0.169.0-alpha.11", "0.169.0-alpha.11.1",
+    "0.169.0", "0.169.1", "0.170.0-alpha.1", "0.170.0-alpha.2", "0.170.0-alpha.3", "0.170.0-alpha.4",
+    "0.170.0-alpha.4.1", "0.170.0-alpha.4.2", "0.171.0-alpha.1", "0.171.0-alpha.2", "0.171.0-alpha.3",
+    "0.171.0-alpha.4", "0.171.0-alpha.5", "0.171.0-alpha.6", "0.171.0-alpha.7", "0.171.0-alpha.8",
+    "0.171.0-alpha.9", "0.171.0-alpha.10", "0.171.0-alpha.11", "0.171.0-alpha.12", "synthetic-v1"}
 META_KEYS = ("id", "timestamp", "originator", "cli_version", "source", "parent_thread_id",
              "forked_from_id", "fork_timestamp", "usage_includes_subagents")
 

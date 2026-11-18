@@ -464,6 +464,62 @@
     "notes": "Automatically compared critical blocks; review surrounding changes and run regression tests before merging."
   },
   {
+    "version": "0.167.0-alpha.4.2",
+    "tag": "rust-v0.167.0-alpha.4.2",
+    "commit": "ab8f7b69143d462f0b57403f3d1ae8637613754c",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.167.0-alpha.4.3",
+    "tag": "rust-v0.167.0-alpha.4.3",
+    "commit": "2fbdda96d7e3c5afb6322f04c599399ba6b0447b",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
     "version": "0.167.0-alpha.5",
     "tag": "rust-v0.167.0-alpha.5",
     "commit": "ecddf7e5d687c4773efcdad2e5b167ff71d89e1c",
@@ -518,6 +574,62 @@
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
     "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.168.0-alpha.2. Audio and other unsupported modalities remain unpriced."
+  },
+  {
+    "version": "0.167.1",
+    "tag": "rust-v0.167.1",
+    "commit": "0a94398fa60c4fac0e7659e4213a0a36e613dd46",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.167.2",
+    "tag": "rust-v0.167.2",
+    "commit": "ce21072c90d32c40af7a55b60b2fb35c84a43a6a",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
   },
   {
     "version": "0.168.0-alpha.1",
@@ -716,6 +828,34 @@
     "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.168.0-alpha.2. Audio and other unsupported modalities remain unpriced."
   },
   {
+    "version": "0.168.0",
+    "tag": "rust-v0.168.0",
+    "commit": "9480ec100c3edee9fc69172e8e80a4730444094d",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
     "version": "0.169.0-alpha.1",
     "tag": "rust-v0.169.0-alpha.1",
     "commit": "126946ffa2e619f87bc2438c94a45de4c60803ee",
@@ -854,5 +994,761 @@
       "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
     },
     "notes": "Reviewed completed-response recording call arguments; the six tracked blocks match 0.168.0-alpha.2. Audio and other unsupported modalities remain unpriced."
+  },
+  {
+    "version": "0.169.0-alpha.6",
+    "tag": "rust-v0.169.0-alpha.6",
+    "commit": "a79d0248ad67b3069e780e25c7c144010064b699",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.7",
+    "tag": "rust-v0.169.0-alpha.7",
+    "commit": "25da1b0cb5e876882f8b1fafe186cdfcf3c712cc",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.8",
+    "tag": "rust-v0.169.0-alpha.8",
+    "commit": "5f4e579f02f767d3eba19e683b49787f5b61055a",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.9",
+    "tag": "rust-v0.169.0-alpha.9",
+    "commit": "864c772c610b27498a12c27c509a5f82765a4edc",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.10",
+    "tag": "rust-v0.169.0-alpha.10",
+    "commit": "733b9c72182143d5c469f728da8df4bacbb7db51",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.11",
+    "tag": "rust-v0.169.0-alpha.11",
+    "commit": "4ca5e9756092085ab0e250a8e69598d226446a94",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0-alpha.11.1",
+    "tag": "rust-v0.169.0-alpha.11.1",
+    "commit": "226fa88979b1a9d76dc36f339ee9c5fbdb2c8e7f",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.0",
+    "tag": "rust-v0.169.0",
+    "commit": "d32063f96c2dff1dc96af839b3952abb6acfeda4",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.169.1",
+    "tag": "rust-v0.169.1",
+    "commit": "c376cf7396eff83ce4c6ac61b9553df142e7a0be",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.1",
+    "tag": "rust-v0.170.0-alpha.1",
+    "commit": "d8b13e28c5c956c10130067df4bb3ea057babdb7",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.2",
+    "tag": "rust-v0.170.0-alpha.2",
+    "commit": "1d787b3c4eca3050e7fa27c90927aae0d3ab4eda",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.3",
+    "tag": "rust-v0.170.0-alpha.3",
+    "commit": "5850637022395e0b0fed9055ca82c410ab24129b",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.4",
+    "tag": "rust-v0.170.0-alpha.4",
+    "commit": "d7cd32e0097992ef905772599f9e6ec18929bdca",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.4.1",
+    "tag": "rust-v0.170.0-alpha.4.1",
+    "commit": "9e07c55808e4c7dfed641abdae9835abb5390293",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.170.0-alpha.4.2",
+    "tag": "rust-v0.170.0-alpha.4.2",
+    "commit": "63b6ad8a5e36b29cadff5fe2fac578c2ec406be2",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.1",
+    "tag": "rust-v0.171.0-alpha.1",
+    "commit": "79bc859013061e3017bd950e4ccdc72aad2d4be0",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.2",
+    "tag": "rust-v0.171.0-alpha.2",
+    "commit": "ac4729232a5399ba13f71043db57c8d53b9b8fc9",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.3",
+    "tag": "rust-v0.171.0-alpha.3",
+    "commit": "730d09058140d962538f89d613013d9688d29517",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.4",
+    "tag": "rust-v0.171.0-alpha.4",
+    "commit": "f0a8ecca80b05b0737230a4c0e059ae6214a4b62",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.5",
+    "tag": "rust-v0.171.0-alpha.5",
+    "commit": "466da69cf6b72983f0d28c498c7cdb8d9bf2d114",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "e3abf3ddb2116f6c989c152055e63e5a09050455a34d101da79f7948450bafee"
+    },
+    "notes": "Reviewed six usage source blocks and completed-response recording call arguments against 0.169.0-alpha.5; provider-reported usage remains the basis."
+  },
+  {
+    "version": "0.171.0-alpha.6",
+    "tag": "rust-v0.171.0-alpha.6",
+    "commit": "18060ed66e2f504fc1ddfed2960ee81d5484a2ac",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.169.0-alpha.5",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.7",
+    "tag": "rust-v0.171.0-alpha.7",
+    "commit": "73c4af9125a8d5e9aabe5aa900eecf70214ba856",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.8",
+    "tag": "rust-v0.171.0-alpha.8",
+    "commit": "cd712429464ac7b96ba278e2ee5c5289489a5244",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.9",
+    "tag": "rust-v0.171.0-alpha.9",
+    "commit": "df0c80eaef8027f1027b44d62ad23e08bfe32bf0",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.10",
+    "tag": "rust-v0.171.0-alpha.10",
+    "commit": "dcacf1774794227fede1c656f773210a3df96e31",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.11",
+    "tag": "rust-v0.171.0-alpha.11",
+    "commit": "57da98c18f84311dc23abfe1cda8f2c0dbd41cb9",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
+  },
+  {
+    "version": "0.171.0-alpha.12",
+    "tag": "rust-v0.171.0-alpha.12",
+    "commit": "7e5fd57f4baa48e4d33e0d062fcdaf1e5ee3beaf",
+    "recordFields": [
+      "thread_id",
+      "turn_id",
+      "session_id",
+      "root_turn_id",
+      "response_id",
+      "usage",
+      "turn_token_usage",
+      "thread_token_usage"
+    ],
+    "localThreadAccumulator": true,
+    "perResponseUsage": true,
+    "sourceFunctionSHA256": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+    "verifiedAgainst": "0.171.0-alpha.6",
+    "unchangedSourceBlocks": {
+      "pub(crate) fn record_token_usage(": "a18f34b2be73c997644d5e9882638002f70c2ea5433e337d840c1289421adca7",
+      "pub struct TokenUsageRecord {": "a0572d8c8139928305638e3570dbf6961d15aef1d5f199bbff0ab4b9327291bc",
+      "pub struct TokenUsage {": "440d1ddb0499e6aae31a5976785cdab16bbd4e6d87e3b99a0efb881c2bb64fc4",
+      "pub(crate) async fn record_response_token_usage(": "b27dce19931ac4a3fb1fb8e281d2744f9ee2878da86261052a3a2df4bb6bfb0d",
+      "pub(crate) async fn record_observed_response_completed(": "7416e806fa11ed4f294bd26a44614ae35f6ffb4e31e2edac3b19b7392d233a38",
+      "pub(crate) async fn record_incomplete_response_usage(": "ac9fbc136724a37237317a28aa538d5c5e6d2fb1f73ba5c69ba6c71b52aa7bb3"
+    },
+    "notes": "Reviewed completed-response call and incomplete-response change: SamplingUsage separates provider TokenUsage from hook charge, while response record persists provider usage unchanged. Estimates remain Standard API token equivalents, not subscription charges."
   }
 ]

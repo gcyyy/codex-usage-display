@@ -188,6 +188,58 @@ class CoreTest(unittest.TestCase):
                 write(self.path, [meta(), context('gpt-6.1-terra'), count(a, a)])
                 self.assertEqual(Decimal(self.result()['totalCostUSD']), Decimal(expected))
 
+    def test_gpt_62_official_standard_prices_and_long_context_boundary(self):
+        cases = [('gpt-6.2-sol', 272000, '0.454'), ('gpt-6.2-sol', 272001, '0.858004'),
+                 ('gpt-6.2-astra', 272000, '1.816'), ('gpt-6.2-astra', 272001, '3.432016')]
+        for model, n, expected in cases:
+            with self.subTest(model=model, input_tokens=n):
+                a = usage(n, 100000, 0, 10000, 0)
+                write(self.path, [meta(), context(model), count(a, a)])
+                result = self.result()
+                self.assertEqual(result['priceStatus'], 'complete')
+                self.assertEqual(Decimal(result['totalCostUSD']), Decimal(expected))
+
+    def test_gpt_62_image_input_is_priced_once_and_unknown_suffix_is_not_guessed(self):
+        write(self.path, [meta(), context('gpt-6.2-astra'), event('response_item',
+            {'type':'message','content':[{'type':'input_image','image_url':'private://pixels'}]},
+            '2026-10-14T00:59:01Z'), response()])
+        self.assertEqual(Decimal(self.result()['totalCostUSD']), Decimal('0.001048'))
+        write(self.path, [meta(), context('gpt-6.2-astra-unreviewed'), response()])
+        result = self.result()
+        self.assertIsNone(result['totalCostUSD'])
+        self.assertIn('unknown_model', {d['code'] for d in result['diagnostics']})
+
+    def test_recent_reviewed_logs_price_gpt_62_and_dedupe(self):
+        versions = ('0.169.0-alpha.11.1', '0.170.0-alpha.4.2', '0.171.0-alpha.5',
+                    '0.171.0-alpha.6', '0.171.0-alpha.12')
+        for version in versions:
+            with self.subTest(version=version):
+                write(self.path, [meta(cli_version=version), context('gpt-6.2-astra'),
+                    response(), response(ts='2026-10-14T01:02:00Z')])
+                result = self.result()
+                self.assertEqual(result['totals']['total'], 110)
+                self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
+                self.assertEqual(Decimal(result['totalCostUSD']), Decimal('0.001048'))
+        write(self.path, [meta(cli_version='0.171.0-alpha.999'), context(), response()])
+        result = self.result()
+        self.assertEqual(result['dataStatus'], 'partial')
+        self.assertIsNone(result['totalCostUSD'])
+
+    def test_parser_upgrade_reindexes_recent_log_version(self):
+        from unittest.mock import patch
+        from collector.indexer import SUPPORTED_VERSIONS
+        version = '0.169.0-alpha.11.1'
+        write(self.path, [meta(cli_version=version), context('gpt-6.2-sol'), response()])
+        with patch('collector.indexer.SUPPORTED_VERSIONS', SUPPORTED_VERSIONS - {version}):
+            self.assertEqual(self.result()['dataStatus'], 'partial')
+        self.index.db.execute("UPDATE settings SET value='12' WHERE key='parser'")
+        self.index.db.commit()
+        self.index.close()
+        self.index = Indexer(self.root / 'cache.sqlite3', [self.home])
+        result = self.result()
+        self.assertEqual((result['dataStatus'], result['priceStatus']), ('complete', 'complete'))
+        self.assertEqual(result['totals']['total'], 110)
+
     def test_conflicting_native_response_ids_remain_unpriced(self):
         write(self.path, [meta(), context(), response(),
             response(value=usage(200,40), ts='2026-10-14T01:01:00Z')])
